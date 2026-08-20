@@ -17,6 +17,7 @@ public class Ace {
         System.out.println(line);
 
         Scanner scanner = new Scanner(System.in);
+        TaskManager taskManager = new TaskManager();
 
         while (true) {
             String input = scanner.nextLine();
@@ -28,7 +29,15 @@ public class Ace {
                 System.out.println(line);
                 break;
             }
-            System.out.println(" " + input);
+            else if (input.equals("list")) {
+                taskManager.printTasks();
+            }
+            else {
+                Task newTask = new Task(input);
+                taskManager.addTask(newTask);
+                System.out.println("added: " + input);
+            }
+
             System.out.println(line);
         }
 
