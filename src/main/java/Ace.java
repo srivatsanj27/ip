@@ -12,7 +12,7 @@ public class Ace {
 
         System.out.println("Hello from\n" + ACE_Logo);
         System.out.println(line);
-        System.out.println(" Hello! I'm ACE!");
+        System.out.println(" Hello! I'm ACE, your personal task manager!");
         System.out.println(" What can I do for you?");
         System.out.println(line);
 
@@ -30,7 +30,16 @@ public class Ace {
                 break;
             }
             else if (input.equals("list")) {
+                System.out.println("Here are the current tasks in your list: ");
                 taskManager.printTasks();
+            }
+            else if (input.startsWith("mark ")) {
+                int arrayIndex = Integer.parseInt(input.substring(5)) - 1;
+                taskManager.markTask(arrayIndex);
+            }
+            else if (input.startsWith("unmark ")) {
+                int arrayIndex = Integer.parseInt(input.substring(7)) - 1;
+                taskManager.unmarkTask(arrayIndex);
             }
             else {
                 Task newTask = new Task(input);
