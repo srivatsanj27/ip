@@ -39,7 +39,7 @@ public class TaskManager {
         }
         else {
             for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
-                System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                System.out.println(" " + (i + 1) + "." + tasks[i]);
             }
         }
     }

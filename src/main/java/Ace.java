@@ -41,15 +41,56 @@ public class Ace {
                 int arrayIndex = Integer.parseInt(input.substring(7)) - 1;
                 taskManager.unmarkTask(arrayIndex);
             }
-            else {
-                Task newTask = new Task(input);
-                taskManager.addTask(newTask);
-                System.out.println("added: " + input);
-            }
+            else if (input.startsWith("todo ")) {
+                String todoDescription = input.substring(5).trim();
+                Task newTodo = new Todo(todoDescription);
+                taskManager.addTask(newTodo);
 
+                System.out.println("Got it, I have now added a new To-Do task!");
+                System.out.println(newTodo.toString());
+                String totalTaskMessage = String.format("You now have a total of %d tasks in your list!%n", taskManager.getCurrentNumberOfTasks());
+                System.out.print(totalTaskMessage);
+            }
+            else if (input.startsWith("deadline ")) {
+                String detail = input.substring(9).trim();
+
+                int byIndex = detail.indexOf(" /by ");
+
+                if (byIndex != -1) {
+                    String description = detail.substring(0, byIndex).trim();
+                    String byWhen = detail.substring(byIndex + 5).trim();
+
+                    Task newDeadline = new Deadline(description, byWhen);
+                    taskManager.addTask(newDeadline);
+
+                    System.out.println("Got it, I have now added a new Deadline task!");
+                    System.out.println(newDeadline.toString());
+                    String totalTaskMessage = String.format("You now have a total of %d tasks in your list!%n", taskManager.getCurrentNumberOfTasks());
+                    System.out.print(totalTaskMessage);
+                }
+            }
+            else if (input.startsWith("event ")) {
+                String detail = input.substring(6).trim();
+
+                int fromIndex = detail.indexOf(" /from ");
+                int toIndex = detail.indexOf(" /to ");
+
+                if (fromIndex != -1 && toIndex != -1 && fromIndex < toIndex) {
+                    String description = detail.substring(0, fromIndex).trim();
+                    String startTime = detail.substring(fromIndex + 7, toIndex).trim();
+                    String endTime = detail.substring(toIndex + 5).trim();
+
+                    Task newEvent = new Event(description, startTime, endTime);
+                    taskManager.addTask(newEvent);
+
+                    System.out.println("Got it, I have now added a new Event task!");
+                    System.out.println(newEvent.toString());
+                    String totalTaskMessage = String.format("You now have a total of %d tasks in your list!%n", taskManager.getCurrentNumberOfTasks());
+                    System.out.print(totalTaskMessage);
+                }
+            }
             System.out.println(line);
         }
-
         scanner.close();
     }
 }
