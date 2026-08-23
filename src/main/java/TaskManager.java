@@ -12,6 +12,15 @@ public class TaskManager {
         numTasks++;
     }
 
+    public void deleteTask(int index) {
+        for (int i = index + 1; i < this.getCurrentNumberOfTasks(); i++) {
+            this.tasks[i - 1] = this.tasks[i];
+        }
+
+        this.tasks[numTasks - 1] = null;
+        numTasks--;
+    }
+
     public Task getTask(int index) {
         return tasks[index];
     }

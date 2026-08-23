@@ -118,12 +118,38 @@ public class Ace {
             return false;
         }
 
+        if (input.startsWith("delete ")) {
+            String card = input.substring(6).trim();
+
+            if (card.isEmpty()) {
+                throw new MissingDescriptionException("delete"); // same logic as other two nested if-loops
+            }
+
+            int taskNumber = parseTaskNumber(card, input, taskManager);
+            Task deletedTask = taskManager.getTask(taskNumber - 1);
+            taskManager.deleteTask(taskNumber - 1);
+            printTaskDeleted(deletedTask, taskManager);
+            return false;
+        }
+
         throw new WrongCommandException(input);
     }
 
-    // helper function to ensure that the 3 lines are printed after teach task, regardless of type, share the same format
+    // helper function to ensure that the 3 lines are printed after each task, regardless of type, share the same format
     private static void printTaskAdded(Task task, TaskManager taskManager, String taskType) {
         System.out.println("Great! I've added a new " + taskType + " card to your hand!");
+
+        System.out.println(task.toString());
+
+        String totalTaskMessage = String.format("You now have a total of %d cards in your hand!\n",
+                taskManager.getCurrentNumberOfTasks());
+
+        System.out.print(totalTaskMessage);
+    }
+
+    // similar helper function to the prev one, but this one prints for the delete if conditional
+    private static void printTaskDeleted(Task task, TaskManager taskManager) {
+        System.out.println("Got it, you have discarded this card!");
 
         System.out.println(task.toString());
 
