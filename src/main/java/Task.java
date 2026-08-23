@@ -1,4 +1,4 @@
-abstract public class Task { /* this is not an abstract class to ensure no 'Task' itself is instantiated, without
+abstract public class Task { /* this is now an abstract class to ensure no 'Task' itself is instantiated, without
                                     specifying what type of task it is */
     public String description;
     public boolean isCompleted;

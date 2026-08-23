@@ -22,19 +22,19 @@ public class TaskManager {
 
     public void markTask(int index) {
         this.tasks[index].completeTask();
-        System.out.println("This task has been marked as complete!");
+        System.out.println("You have folded this card!");
         System.out.println(tasks[index]);
     }
 
     public void unmarkTask(int index) {
         this.tasks[index].resetTask();
-        System.out.println("This task has been marked as not complete again!");
+        System.out.println("You have been dealt this card again!");
         System.out.println(tasks[index]);
     }
 
     public void printTasks() {
         if (this.getCurrentNumberOfTasks() == 0) {
-            System.out.println("You currently do not have any outstanding tasks!");
+            System.out.println("Your hand is currently empty!");
             return;
         }
         else {
