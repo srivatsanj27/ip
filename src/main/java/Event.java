@@ -17,6 +17,11 @@ public class Event extends Task {
     }
 
     @Override
+    public String loadFormat() {
+        return this.toString();
+    }
+
+    @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + this.getStartTime() + " to: " + this.getEndTime() + ")";
     }

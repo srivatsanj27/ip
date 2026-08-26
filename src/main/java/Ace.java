@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Ace {
@@ -132,6 +134,24 @@ public class Ace {
             Task deletedTask = taskManager.getTask(taskNumber - 1);
             taskManager.deleteTask(taskNumber - 1);
             printTaskDeleted(deletedTask, taskManager);
+            return false;
+        }
+
+        if (input.equals("date") || input.startsWith("date ")) {
+            String dateString = input.substring(4).trim();
+            if (dateString.isEmpty()) {
+                throw new MissingDescriptionException("date");
+            }
+
+            LocalDate targetDate;
+            try {
+                targetDate = LocalDate.parse(dateString, Deadline.DATE_ONLY_INPUT);
+            }
+            catch (DateTimeParseException e) {
+                throw new WrongDateFormatException(dateString);
+            }
+
+            taskManager.printTasksByDate(targetDate);
             return false;
         }
 
