@@ -24,6 +24,8 @@ abstract public class Task { /* this is now an abstract class to ensure no 'Task
         return this.isCompleted;
     }
 
+    public abstract String loadFormat();
+
     @Override
     public String toString() {
         if (this.isCompleted) {

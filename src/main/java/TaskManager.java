@@ -1,3 +1,6 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class TaskManager {
     private final static int maxTasks = 100;
     private int numTasks = 0;
@@ -57,6 +60,29 @@ public class TaskManager {
             for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
                 System.out.println(" " + (i + 1) + "." + tasks[i]);
             }
+        }
+    }
+
+    public void printTasksByDate(LocalDate targetDate) {
+        String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+        System.out.println("Here are your cards due on " + formattedDate + ":");
+
+        int count = 0;
+        for (int i = 0; i < numTasks; i++) {
+            Task task = tasks[i];
+
+            if (task instanceof Deadline) {
+                Deadline deadline = (Deadline) task;
+                // Compare only the LocalDate part of the deadline's LocalDateTime
+                if (deadline.getByWhen().toLocalDate().equals(targetDate)) {
+                    System.out.println(" " + (count + 1) + "." + deadline);
+                    count++;
+                }
+            }
+        }
+
+        if (count == 0) {
+            System.out.println(" No cards due on this date!");
         }
     }
 }
