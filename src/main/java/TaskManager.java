@@ -10,6 +10,7 @@ public class TaskManager {
     public void addTask(Task task) {
         tasks[numTasks] = task;
         numTasks++;
+        Storage.save(this);
     }
 
     public void deleteTask(int index) {
@@ -19,6 +20,8 @@ public class TaskManager {
 
         this.tasks[numTasks - 1] = null;
         numTasks--;
+
+        Storage.save(this);
     }
 
     public Task getTask(int index) {
@@ -33,12 +36,16 @@ public class TaskManager {
         this.tasks[index].completeTask();
         System.out.println("You have folded this card!");
         System.out.println(tasks[index]);
+
+        Storage.save(this);
     }
 
     public void unmarkTask(int index) {
         this.tasks[index].resetTask();
         System.out.println("You have been dealt this card again!");
         System.out.println(tasks[index]);
+
+        Storage.save(this);
     }
 
     public void printTasks() {

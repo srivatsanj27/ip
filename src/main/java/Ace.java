@@ -19,6 +19,9 @@ public class Ace {
         Scanner scanner = new Scanner(System.in);
         TaskManager taskManager = new TaskManager();
 
+        // now, any saved tasks will be loaded automatically when the chat loads up again
+        Storage.load(taskManager);
+
         while (true) {
             String input = scanner.nextLine().trim();
 
