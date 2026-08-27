@@ -1,6 +1,6 @@
 ---
 name: test-ui
-description: Run the console UI test cases recorded in test/ui-test-plan.md against the Ace Java program (src/main/java/Ace.java), feeding each case's inputs as stdin and diffing the actual output against the expected output. Use this whenever the user asks to test the UI, run UI tests, check console output, verify the program's output against expected/sample transcripts, or mentions test/ui-test-plan.md or "test-ui" by name. Stops at the first failing test case and reports the diff — does not run remaining cases past a failure.
+description: Run the console UI test cases recorded in test/ui-test-plan.md against the Ace Java program (src/main/java/ace/Ace.java), feeding each case's inputs as stdin and diffing the actual output against the expected output. Use this whenever the user asks to test the UI, run UI tests, check console output, verify the program's output against expected/sample transcripts, or mentions test/ui-test-plan.md or "test-ui" by name. Stops at the first failing test case and reports the diff — does not run remaining cases past a failure.
 ---
 
 # test-ui
@@ -13,9 +13,9 @@ Test cases run in order and the session stops at the **first** failure. Once one
 
 ## Workflow
 
-1. **Compile fresh.** Stale `.class` files are a classic source of "but I already fixed that" confusion, so always recompile before testing:
+1. **Compile fresh.** Stale `.class` files are a classic source of "but I already fixed that" confusion, so always recompile before testing. The source lives under packages now (`src/main/java/ace/...`), so the compile command must recurse rather than glob just the top-level folder:
    ```bash
-   javac -d out/production/ip src/main/java/*.java
+   javac -d out/production/ip $(find src/main/java -name "*.java")
    ```
    If this fails, stop and report the compiler errors — there's no point running tests against code that doesn't build.
 

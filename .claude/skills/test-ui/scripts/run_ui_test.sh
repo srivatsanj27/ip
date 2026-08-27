@@ -14,7 +14,7 @@ set -uo pipefail
 input_file="$1"
 expected_file="$2"
 classes_dir="${3:-out/production/ip}"
-main_class="${4:-Ace}"
+main_class="${4:-ace.Ace}"
 
 if [[ ! -f "$input_file" ]]; then
     echo "run_ui_test.sh: input file not found: $input_file" >&2

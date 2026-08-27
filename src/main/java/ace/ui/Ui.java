@@ -1,3 +1,7 @@
+package ace.ui;
+
+import ace.task.Task;
+
 import java.util.Scanner;
 
 public class Ui {
