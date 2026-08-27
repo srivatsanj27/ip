@@ -1,3 +1,11 @@
+package ace;
+
+import ace.exception.AceException;
+import ace.parser.Parser;
+import ace.storage.Storage;
+import ace.task.TaskManager;
+import ace.ui.Ui;
+
 public class Ace {
     public static void main(String[] args) {
         Ui ui = new Ui();
