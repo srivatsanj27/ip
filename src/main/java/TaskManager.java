@@ -37,7 +37,7 @@ public class TaskManager {
 
     public void markTask(int index) {
         this.tasks[index].completeTask();
-        System.out.println("You have folded this card!");
+        System.out.println("You have checked this card!");
         System.out.println(tasks[index]);
 
         Storage.save(this);
@@ -45,7 +45,7 @@ public class TaskManager {
 
     public void unmarkTask(int index) {
         this.tasks[index].resetTask();
-        System.out.println("You have been dealt this card again!");
+        System.out.println("You have unchecked this card again!");
         System.out.println(tasks[index]);
 
         Storage.save(this);

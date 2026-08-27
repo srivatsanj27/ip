@@ -28,15 +28,6 @@ bye
 \```
 ```
 
-## Note on the two cases below
-
-These two cases encode the **target** output format (as agreed on with the user, e.g. `Got it.
-I've added this task:` / `Now you have N tasks in the list.` / no space between `[T]` and `[ ]`)
-— not necessarily what the current implementation prints today. If `test-ui` reports a FAIL here,
-that's expected until the known formatting bugs in `Todo`/`Deadline`/`Event`/`TaskManager` (extra
-space between the type and status brackets, list-numbering spacing, message wording) are fixed.
-Once fixed, both cases should pass; add further cases as new commands/behavior are implemented.
-
 ### Test Case 1: Add a todo task and list it
 
 **Aim:** Verify that `todo` adds a task with the correct confirmation message/format, and that `list` displays it correctly.
@@ -59,30 +50,28 @@ Hello from
  \_| |_/ \____/\____/
 
 ____________________________________________________________
- Hello! I'm ACE, your personal task manager!
- What can I do for you?
+ Hello! I'm ACE, your personal poker-themed task manager!
+ Shall we begin our game?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
-   [T][ ] borrow book
- Now you have 1 tasks in the list.
+Great! I've added a new To-Do card to your hand!
+[T][ ] borrow book
+You now have a total of 1 cards in your hand!
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
  1.[T][ ] borrow book
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
-____________________________________________________________
+Cashing out! See you again soon!
 ```
 
 ### Test Case 2: Add a deadline and an event, then list both
 
-**Aim:** Verify that `deadline` and `event` parse their `/by`, `/from`, `/to` arguments correctly and format the date/time details as expected, and that `list` displays multiple task types correctly.
+**Aim:** Verify that `deadline` and `event` parse their `/by`, `/from`, `/to` arguments correctly (including a real parseable date/time for `deadline`) and format the details as expected, and that `list` displays multiple task types correctly.
 
 **Inputs:**
 ```
-deadline return book /by Sunday
+deadline return book /by 2/12/2019 1800
 event project meeting /from Mon 2pm /to 4pm
 list
 bye
@@ -99,25 +88,23 @@ Hello from
  \_| |_/ \____/\____/
 
 ____________________________________________________________
- Hello! I'm ACE, your personal task manager!
- What can I do for you?
+ Hello! I'm ACE, your personal poker-themed task manager!
+ Shall we begin our game?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
- Now you have 1 tasks in the list.
+Great! I've added a new Deadline card to your hand!
+[D][ ] return book (by: Dec 02 2019 at 6:00pm)
+You now have a total of 1 cards in your hand!
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
-   [E][ ] project meeting (from: Mon 2pm to: 4pm)
- Now you have 2 tasks in the list.
+Great! I've added a new Event card to your hand!
+[E][ ] project meeting (from: Mon 2pm to: 4pm)
+You now have a total of 2 cards in your hand!
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
- 1.[D][ ] return book (by: Sunday)
+ 1.[D][ ] return book (by: Dec 02 2019 at 6:00pm)
  2.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
-____________________________________________________________
+Cashing out! See you again soon!
 ```
