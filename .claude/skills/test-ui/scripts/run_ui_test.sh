@@ -25,6 +25,12 @@ if [[ ! -f "$expected_file" ]]; then
     exit 2
 fi
 
+# Every test case assumes a fresh, empty task list. Ace now persists tasks to
+# data/Ace.txt (see Storage.java), so a file left over from a previous run
+# would silently start this one with a non-empty list — deleting it first is
+# what makes "fresh" actually true.
+rm -f data/Ace.txt
+
 actual=$(java -cp "$classes_dir" "$main_class" < "$input_file" 2>&1)
 expected=$(cat "$expected_file")
 
