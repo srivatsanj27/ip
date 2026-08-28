@@ -33,3 +33,9 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
+
+## Testing
+
+Target JUnit coverage of roughly the top 50% highest-value methods in the codebase — prioritize complex, core, or critical business logic (parsing, state mutation, persistence, command dispatch) over trivial getters/setters, pure `println` wrappers, or one-line delegations. This is a coverage target, not a percentage to hit exhaustively; use judgment on which methods are "high-value" as the codebase grows.
+
+After any code change (new feature, bug fix, refactor), review whether it adds, changes, or removes high-value logic, and update JUnit tests accordingly so the codebase keeps meeting this target — new complex logic should get new tests, and changed behavior should get its existing tests updated rather than left stale or silently broken.
