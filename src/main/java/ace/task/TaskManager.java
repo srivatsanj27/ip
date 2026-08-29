@@ -141,4 +141,27 @@ public class TaskManager {
             System.out.println(" No cards due on this date!");
         }
     }
+    /**
+     * Prints every task in the list whose description contains the given text,
+     * numbered from 1, or a message if none match.
+     *
+     * @param name the text to search for within each task's description.
+     */
+    public void printTasksByName(String name) {
+        System.out.println("Here are your matching cards which include the name " + name + ":");
+
+        int count = 0;
+        for (int i = 0; i < numTasks; i++) {
+            Task task = tasks[i];
+
+            if (task.getDescription().contains(name)) {
+                System.out.println(" " + (count + 1) + "." + task);
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            System.out.println("You do not have any such cards!");
+        }
+    }
 }
