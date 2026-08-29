@@ -12,14 +12,14 @@ import ace.exception.WrongTaskNumberException;
 import ace.task.TaskManager;
 import ace.ui.Ui;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Parser.parseCommand delegates to TaskManager, whose mutating methods call
@@ -85,7 +85,7 @@ public class ParserTest {
 
         Parser.parseCommand("mark 1", taskManager, ui);
 
-        assertTrue(taskManager.getTask(0).getCompleted());
+        assertTrue(taskManager.getTask(0).isCompleted());
     }
 
     @Test

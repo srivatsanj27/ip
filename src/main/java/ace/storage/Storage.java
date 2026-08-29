@@ -73,16 +73,14 @@ public class Storage {
 
         if (type == 'T') {
             task = new Todo(rest);
-        }
-        else if (type == 'D') {
+        } else if (type == 'D') {
             int byIndex = rest.lastIndexOf(" (by: ");
 
             String desc = rest.substring(0, byIndex);
             String by = rest.substring(byIndex + 6, rest.length() - 1);
 
             task = new Deadline(desc, by);
-        }
-        else if (type == 'E') {
+        } else if (type == 'E') {
             int fromIndex = rest.lastIndexOf(" (from: ");
             int toIndex = rest.lastIndexOf(" to: ");
 
@@ -105,8 +103,7 @@ public class Storage {
         if (!Files.exists(DIRECTORY_PATH)) {
             try {
                 Files.createDirectories(DIRECTORY_PATH);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("I could not create this directory due to this: " + e.getMessage());
                 return false;
             }

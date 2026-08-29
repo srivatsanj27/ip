@@ -1,9 +1,8 @@
 package ace.task;
 
-abstract public class Task { /* this is now an abstract class to ensure no 'Task' itself is instantiated, without
-                                    specifying what type of task it is */
-    public String description;
-    public boolean isCompleted;
+abstract public class Task {
+    private String description;
+    private boolean isCompleted;
 
     public Task(String description) {
         this.description = description;
@@ -22,7 +21,7 @@ abstract public class Task { /* this is now an abstract class to ensure no 'Task
         this.isCompleted = false;
     }
 
-    public boolean getCompleted() {
+    public boolean isCompleted() {
         return this.isCompleted;
     }
 
@@ -32,8 +31,7 @@ abstract public class Task { /* this is now an abstract class to ensure no 'Task
     public String toString() {
         if (this.isCompleted) {
             return "[X] " + this.getDescription();
-        }
-        else {
+        } else {
             return "[ ] " + this.getDescription();
         }
     }

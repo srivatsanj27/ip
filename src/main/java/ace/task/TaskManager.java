@@ -59,8 +59,7 @@ public class TaskManager {
         if (this.getCurrentNumberOfTasks() == 0) {
             System.out.println("Your hand is currently empty!");
             return;
-        }
-        else {
+        } else {
             for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
                 System.out.println(" " + (i + 1) + "." + tasks[i]);
             }
