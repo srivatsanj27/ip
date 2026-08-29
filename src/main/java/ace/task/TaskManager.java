@@ -59,8 +59,7 @@ public class TaskManager {
         if (this.getCurrentNumberOfTasks() == 0) {
             System.out.println("Your hand is currently empty!");
             return;
-        }
-        else {
+        } else {
             for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
                 System.out.println(" " + (i + 1) + "." + tasks[i]);
             }
@@ -87,6 +86,24 @@ public class TaskManager {
 
         if (count == 0) {
             System.out.println(" No cards due on this date!");
+        }
+    }
+
+    public void printTasksByName(String name) {
+        System.out.println("Here are your matching cards which include the name " + name + ":");
+
+        int count = 0;
+        for (int i = 0; i < numTasks; i++) {
+            Task task = tasks[i];
+
+            if (task.getDescription().contains(name)) {
+                System.out.println(" " + (count + 1) + "." + task);
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            System.out.println("You do not have any such cards!");
         }
     }
 }

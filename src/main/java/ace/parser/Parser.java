@@ -121,6 +121,16 @@ public class Parser {
             return false;
         }
 
+        if (input.equals("find") || input.startsWith("find ")) {
+            String name = input.substring(4).trim();
+            if (name.isEmpty()) {
+                throw new MissingDescriptionException("find");
+            }
+
+            taskManager.printTasksByName(name);
+            return false;
+        }
+
         throw new WrongCommandException(input);
     }
 
