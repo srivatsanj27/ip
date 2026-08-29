@@ -7,8 +7,8 @@ package ace.task;
  * persist itself.
  */
 abstract public class Task {
-    public String description;
-    public boolean isCompleted;
+    private String description;
+    private boolean isCompleted;
 
     /**
      * Creates a new, incomplete task with the given description.
@@ -43,12 +43,7 @@ abstract public class Task {
         this.isCompleted = false;
     }
 
-    /**
-     * Returns whether this task has been marked as completed.
-     *
-     * @return true if the task is completed, false otherwise.
-     */
-    public boolean getCompleted() {
+    public boolean isCompleted() {
         return this.isCompleted;
     }
 
@@ -72,8 +67,7 @@ abstract public class Task {
     public String toString() {
         if (this.isCompleted) {
             return "[X] " + this.getDescription();
-        }
-        else {
+        } else {
             return "[ ] " + this.getDescription();
         }
     }

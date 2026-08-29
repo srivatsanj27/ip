@@ -14,7 +14,8 @@ public class MissingDescriptionException extends AceException {
      * @param task the name of the command that was missing a description (e.g. "todo").
      */
     public MissingDescriptionException(String task) {
-        String toBePrinted = String.format("Oh no! This card has to be discarded as I do not understand the command %s! ", task);
+        String toBePrinted = String.format(
+                "Oh no! This card has to be discarded as I do not understand the command %s! ", task);
         super(toBePrinted);
     }
 }

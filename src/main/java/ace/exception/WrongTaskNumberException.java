@@ -14,7 +14,8 @@ public class WrongTaskNumberException extends AceException {
      * @param taskNumber the invalid task number the user gave.
      */
     public WrongTaskNumberException(int taskNumber) {
-        String toBePrinted = String.format("Oh no! This card has to be discarded as I do not see the number %d in your hand! ", taskNumber);
+        String toBePrinted = String.format(
+                "Oh no! This card has to be discarded as I do not see the number %d in your hand! ", taskNumber);
         super(toBePrinted);
     }
 }

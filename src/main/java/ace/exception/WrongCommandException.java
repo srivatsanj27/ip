@@ -14,7 +14,8 @@ public class WrongCommandException extends AceException {
      * @param input the full, unrecognized or malformed user input.
      */
     public WrongCommandException(String input) {
-        String toBePrinted = String.format("Oh no! This card has to be discarded as I do not understand the command %s! ", input);
+        String toBePrinted = String.format(
+                "Oh no! This card has to be discarded as I do not understand the command %s! ", input);
         super(toBePrinted);
     }
 }

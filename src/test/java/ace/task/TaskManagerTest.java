@@ -4,10 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -15,6 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * TaskManager.addTask/markTask/unmarkTask/deleteTask all call Storage.save(), which
@@ -118,7 +118,7 @@ public class TaskManagerTest {
 
         taskManager.markTask(0);
 
-        assertTrue(taskManager.getTask(0).getCompleted());
+        assertTrue(taskManager.getTask(0).isCompleted());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class TaskManagerTest {
 
         taskManager.unmarkTask(0);
 
-        assertFalse(taskManager.getTask(0).getCompleted());
+        assertFalse(taskManager.getTask(0).isCompleted());
     }
 
     @Test

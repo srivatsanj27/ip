@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import ace.exception.WrongDateFormatException;
 
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.Test;
 
 public class DeadlineTest {
 
