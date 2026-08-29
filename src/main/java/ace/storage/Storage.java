@@ -13,12 +13,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * Handles saving the task list to disk and loading it back on startup. Tasks are
+ * persisted one per line using each task's {@link Task#loadFormat()}, which is
+ * kept separate from its display format so that changing how a task looks on
+ * screen doesn't break the save file's format.
+ */
 public class Storage {
     private static final Path SAVED_PATH = Paths.get("data", "Ace.txt");
     private static final Path DIRECTORY_PATH = SAVED_PATH.getParent();
 
-    /* every task now gets added to the hard disk, and every time the task is modified,
-       by marking/unmarking/adding/deleting, the list is updated */
+    /**
+     * Writes every task currently in taskManager to the save file, overwriting
+     * whatever was there before. Called automatically by {@link TaskManager} after
+     * every mutation (add/delete/mark/unmark), so the file on disk always reflects
+     * the current in-memory state.
+     *
+     * @param taskManager the task manager whose current tasks should be saved.
+     */
     public static void save(TaskManager taskManager) {
         if (!createPath()) {
             return;
@@ -38,6 +50,15 @@ public class Storage {
         }
     }
 
+    /**
+     * Reads the save file (if it exists) and repopulates taskManager with its
+     * contents. Does nothing if the file or its folder don't exist yet, which is
+     * the expected case on a fresh machine that has never saved anything. Any
+     * individual line that can't be parsed is skipped with a warning rather than
+     * aborting the whole load, so one corrupted line can't take down startup.
+     *
+     * @param taskManager the task manager to populate with the loaded tasks.
+     */
     public static void load(TaskManager taskManager) {
         if (!Files.exists(SAVED_PATH)) {
             return;
@@ -64,6 +85,18 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a single save-file line back into the Task it represents. Each line
+     * matches the format produced by {@link Task#loadFormat()}, e.g.
+     * "[T][ ] description", "[D][X] description (by: ...)", or
+     * "[E][ ] description (from: ... to: ...)" — the type character at index 1
+     * and the mark character at index 4 are always at those fixed positions, with
+     * the description and any extra fields starting at index 7.
+     *
+     * @param line a single line read from the save file.
+     * @return the task the line represents, or null if its type character isn't recognized.
+     * @throws WrongDateFormatException if the line is a Deadline with an unparseable date.
+     */
     private static Task parseTask(String line) throws WrongDateFormatException {
         char type = line.charAt(1);
         boolean isMarked = line.charAt(4) == 'X';
@@ -100,7 +133,13 @@ public class Storage {
         return task;
     }
 
-    // 2-step process of first checking whether the parent folder exists. if no, it gets created
+    /**
+     * Ensures the save file's parent folder exists, creating it if it doesn't.
+     * Called before every write, since a fresh checkout won't have a data/ folder
+     * yet.
+     *
+     * @return true if the folder exists (or was just created), false if it couldn't be created.
+     */
     private static boolean createPath() {
         if (!Files.exists(DIRECTORY_PATH)) {
             try {

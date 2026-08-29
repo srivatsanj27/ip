@@ -15,7 +15,22 @@ import ace.ui.Ui;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Interprets a single line of raw user input and carries out the corresponding
+ * action against the task list, reporting the result through {@link Ui}. This is
+ * the one place that knows what each command word means.
+ */
 public class Parser {
+
+    /**
+     * Parses one line of user input and executes the command it represents.
+     *
+     * @param input the raw line of user input.
+     * @param taskManager the task list to act on.
+     * @param ui the UI to report results and errors through.
+     * @return true if the command was "bye" and the program should exit, false otherwise.
+     * @throws AceException if the input isn't a recognized, well-formed command.
+     */
     public static boolean parseCommand(String input, TaskManager taskManager, Ui ui) throws AceException {
         if (input.equals("list")) {
             taskManager.printTasks();
@@ -124,6 +139,19 @@ public class Parser {
         throw new WrongCommandException(input);
     }
 
+    /**
+     * Parses and validates a task number argument, such as the "5" in "mark 5".
+     * Confirms it's a valid integer and refers to a task actually in the list
+     * (1-based, matching what the user sees from "list") before handing back a
+     * usable 1-based task number.
+     *
+     * @param input the task number argument, expected to be a plain integer.
+     * @param originalInput the full original command, used to build a clear error message if input isn't numeric.
+     * @param taskManager the task list, used to check the number is in range.
+     * @return the parsed, validated 1-based task number.
+     * @throws WrongCommandException if input isn't a valid integer.
+     * @throws WrongTaskNumberException if input is a valid integer but out of range.
+     */
     private static int parseTaskNumber(String input, String originalInput, TaskManager taskManager)
             throws AceException {
         int taskNumber;

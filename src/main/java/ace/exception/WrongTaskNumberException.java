@@ -1,7 +1,19 @@
 package ace.exception;
 
+/**
+ * Thrown when a command that refers to a task by number (e.g. "mark 5" when there
+ * are only 4 tasks, or "mark 0") is given a number that isn't a valid, in-range
+ * task index.
+ */
 public class WrongTaskNumberException extends AceException {
-    public WrongTaskNumberException(int taskNumber) { /* handles inputs such as "mark 5 " when there are only 4 tasks */
+
+    /**
+     * Creates a new exception for a task number that doesn't refer to any task
+     * currently in the list.
+     *
+     * @param taskNumber the invalid task number the user gave.
+     */
+    public WrongTaskNumberException(int taskNumber) {
         String toBePrinted = String.format("Oh no! This card has to be discarded as I do not see the number %d in your hand! ", taskNumber);
         super(toBePrinted);
     }
