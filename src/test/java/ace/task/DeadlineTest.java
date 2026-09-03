@@ -3,11 +3,11 @@ package ace.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import ace.exception.WrongDateFormatException;
-
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
+
+import ace.exception.WrongDateFormatException;
 
 public class DeadlineTest {
 

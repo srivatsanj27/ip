@@ -1,9 +1,9 @@
 package ace.task;
 
-import ace.storage.Storage;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import ace.storage.Storage;
 
 /**
  * Holds the user's task list and provides operations to add, remove, mark, and
@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
  * to disk via {@link Storage}, so callers never need to save explicitly.
  */
 public class TaskManager {
-    private final static int maxTasks = 100;
+    private static final int maxTasks = 100;
     private int numTasks = 0;
     private Task[] tasks;
 

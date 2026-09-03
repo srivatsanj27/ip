@@ -3,11 +3,6 @@ package ace.storage;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import ace.task.Deadline;
-import ace.task.Task;
-import ace.task.TaskManager;
-import ace.task.Todo;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +11,11 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import ace.task.Deadline;
+import ace.task.Task;
+import ace.task.TaskManager;
+import ace.task.Todo;
 
 /**
  * Storage's save path (data/Ace.txt) is hardcoded, not injectable, so these tests

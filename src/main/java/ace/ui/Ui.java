@@ -1,8 +1,8 @@
 package ace.ui;
 
-import ace.task.Task;
-
 import java.util.Scanner;
+
+import ace.task.Task;
 
 /**
  * The single place responsible for talking to the user — printing messages and

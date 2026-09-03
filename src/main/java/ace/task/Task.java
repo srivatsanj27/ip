@@ -6,7 +6,7 @@ package ace.task;
  * concrete subtypes (Todo, Deadline, Event), each of which knows how to display and
  * persist itself.
  */
-abstract public class Task {
+public abstract class Task {
     private String description;
     private boolean isCompleted;
 

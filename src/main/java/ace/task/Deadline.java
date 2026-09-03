@@ -1,13 +1,12 @@
 package ace.task;
 
-import ace.exception.WrongDateFormatException;
-
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import ace.exception.WrongDateFormatException;
 
 /**
  * A task with a due date and time. Accepts several input formats when constructed
@@ -15,8 +14,6 @@ import java.time.format.DateTimeParseException;
  * how the deadline is saved to disk versus how it's shown to the user.
  */
 public class Deadline extends Task {
-    private LocalDateTime byWhen;
-
     // how the user is expected to input the time
     public static final DateTimeFormatter INPUT_TYPE = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
 
@@ -27,6 +24,8 @@ public class Deadline extends Task {
        defaulted to 2359 of that date */
     public static final DateTimeFormatter DATE_ONLY_INPUT = DateTimeFormatter.ofPattern("d/M/yyyy");
     public static final LocalTime DEFAULT_TIME = LocalTime.of(23, 59);
+
+    private LocalDateTime byWhen;
 
     /**
      * Creates a new, incomplete deadline with the given description and due
