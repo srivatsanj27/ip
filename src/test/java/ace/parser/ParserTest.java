@@ -5,13 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ace.exception.MissingDescriptionException;
-import ace.exception.WrongCommandException;
-import ace.exception.WrongDateFormatException;
-import ace.exception.WrongTaskNumberException;
-import ace.task.TaskManager;
-import ace.ui.Ui;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +13,13 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import ace.exception.MissingDescriptionException;
+import ace.exception.WrongCommandException;
+import ace.exception.WrongDateFormatException;
+import ace.exception.WrongTaskNumberException;
+import ace.task.TaskManager;
+import ace.ui.Ui;
 
 /**
  * Parser.parseCommand delegates to TaskManager, whose mutating methods call
@@ -69,14 +69,12 @@ public class ParserTest {
 
     @Test
     public void parseCommand_todoMissingDescription_missingDescriptionExceptionThrown() {
-        assertThrows(MissingDescriptionException.class,
-                () -> Parser.parseCommand("todo", taskManager, ui));
+        assertThrows(MissingDescriptionException.class, () -> Parser.parseCommand("todo", taskManager, ui));
     }
 
     @Test
     public void parseCommand_unknownCommand_wrongCommandExceptionThrown() {
-        assertThrows(WrongCommandException.class,
-                () -> Parser.parseCommand("gibberish", taskManager, ui));
+        assertThrows(WrongCommandException.class, () -> Parser.parseCommand("gibberish", taskManager, ui));
     }
 
     @Test
@@ -90,25 +88,22 @@ public class ParserTest {
 
     @Test
     public void parseCommand_markNonNumericArgument_wrongCommandExceptionThrown() {
-        assertThrows(WrongCommandException.class,
-                () -> Parser.parseCommand("mark abc", taskManager, ui));
+        assertThrows(WrongCommandException.class, () -> Parser.parseCommand("mark abc", taskManager, ui));
     }
 
     @Test
     public void parseCommand_markOutOfRangeNumber_wrongTaskNumberExceptionThrown() {
-        assertThrows(WrongTaskNumberException.class,
-                () -> Parser.parseCommand("mark 5", taskManager, ui));
+        assertThrows(WrongTaskNumberException.class, () -> Parser.parseCommand("mark 5", taskManager, ui));
     }
 
     @Test
     public void parseCommand_deadlineMissingByClause_wrongCommandExceptionThrown() {
-        assertThrows(WrongCommandException.class,
-                () -> Parser.parseCommand("deadline return book", taskManager, ui));
+        assertThrows(WrongCommandException.class, () -> Parser.parseCommand("deadline return book", taskManager, ui));
     }
 
     @Test
     public void parseCommand_deadlineUnparseableDate_wrongDateFormatExceptionThrown() {
-        assertThrows(WrongDateFormatException.class,
-                () -> Parser.parseCommand("deadline return book /by not-a-date", taskManager, ui));
+        assertThrows(WrongDateFormatException.class, () -> Parser.parseCommand(
+                "deadline return book /by not-a-date", taskManager, ui));
     }
 }
