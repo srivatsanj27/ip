@@ -66,7 +66,7 @@ test {
 }
 
 application {
-    mainClass = 'ace.Ace'
+    mainClass = 'ace.gui.Launcher'
 }
 
 jar {
@@ -80,13 +80,8 @@ shadowJar {
     archiveFileName = 'Ace.jar'
 }
 
-run {
-    standardInput = System.in
-}
-
-// Launches the GUI while the app is still being built out — kept separate
-// from the default "run" task so the CLI (application.mainClass) keeps
-// working throughout, until the GUI is ready to take over as the default.
+// Now equivalent to the default "run" task (application.mainClass is also
+// ace.gui.Launcher) — kept as an explicit, discoverable name for the GUI.
 tasks.register('runGui', JavaExec) {
     group = 'application'
     description = 'Runs the Ace GUI (ace.gui.Launcher).'

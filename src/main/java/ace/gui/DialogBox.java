@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 
 /**
  * A single message bubble in the chat history: a text label paired with an
@@ -40,11 +41,15 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
+
+        double radius = displayPicture.getFitWidth() / 2;
+        displayPicture.setClip(new Circle(radius, radius, radius));
     }
 
     /**
      * Reverses the order of this dialog box's children and left-aligns it,
-     * so the avatar appears on the left instead of the right — used to
+     * so the avatar appears on the left instead of the right, and swaps in
+     * the "reply-label" style so the bubble's color and corner rounding
      * visually distinguish Ace's replies from the user's own messages.
      */
     private void flip() {
@@ -52,6 +57,7 @@ public class DialogBox extends HBox {
         Collections.reverse(tmp);
         getChildren().setAll(tmp);
         setAlignment(Pos.TOP_LEFT);
+        dialog.getStyleClass().add("reply-label");
     }
 
     /**

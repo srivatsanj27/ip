@@ -1,11 +1,14 @@
 package ace.gui;
 
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Controller for the main chat window, defined in {@code MainWindow.fxml}.
@@ -51,7 +54,9 @@ public class MainWindow {
     /**
      * Reads the current text field content, sends it through {@link AceCore}
      * exactly as the CLI would process it, and displays both the user's
-     * message and Ace's real response as dialog boxes.
+     * message and Ace's real response as dialog boxes. If that command was
+     * "bye", closes the window shortly after so the goodbye message is
+     * still visible for a moment first.
      */
     @FXML
     private void handleUserInput() {
@@ -61,5 +66,11 @@ public class MainWindow {
                 DialogBox.getUserDialog(userText, userImage),
                 DialogBox.getAceDialog(aceText, aceImage));
         userInput.clear();
+
+        if (aceCore.isExit()) {
+            PauseTransition delay = new PauseTransition(Duration.seconds(1));
+            delay.setOnFinished(event -> Platform.exit());
+            delay.play();
+        }
     }
 }
