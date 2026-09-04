@@ -25,6 +25,30 @@ dependencies {
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+
+    // All OS/architecture classifiers are needed (not just this machine's) so the
+    // app, and the fat jar built from it, work regardless of which machine runs it.
+    // "mac-aarch64" specifically covers Apple Silicon Macs — the tutorial's own
+    // win/mac/linux list predates that and resolves to Intel-only binaries on Mac,
+    // which fail at runtime with "Error initializing QuantumRenderer" on M-series chips.
+    String javaFxVersion = '17.0.7'
+
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:mac-aarch64")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:mac-aarch64")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:mac-aarch64")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:mac-aarch64")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:linux")
 }
 
 test {
@@ -58,4 +82,14 @@ shadowJar {
 
 run {
     standardInput = System.in
+}
+
+// Launches the GUI while the app is still being built out — kept separate
+// from the default "run" task so the CLI (application.mainClass) keeps
+// working throughout, until the GUI is ready to take over as the default.
+tasks.register('runGui', JavaExec) {
+    group = 'application'
+    description = 'Runs the Ace GUI (ace.gui.Launcher).'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ace.gui.Launcher'
 }
