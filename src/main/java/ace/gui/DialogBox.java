@@ -1,9 +1,12 @@
 package ace.gui;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -13,24 +16,30 @@ import javafx.scene.layout.HBox;
 
 /**
  * A single message bubble in the chat history: a text label paired with an
- * avatar image, laid out side by side. Use {@link #getUserDialog(String, Image)}
- * or {@link #getAceDialog(String, Image)} to create one, rather than the
+ * avatar image, laid out side by side. Its layout is defined in
+ * {@code DialogBox.fxml}, loaded into this instance via the {@code fx:root}
+ * pattern. Use {@link #getUserDialog(String, Image)} or
+ * {@link #getAceDialog(String, Image)} to create one, rather than the
  * constructor directly, so user and Ace messages are styled consistently.
  */
 public class DialogBox extends HBox {
-    private Label text;
+    @FXML
+    private Label dialog;
+    @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String s, Image i) {
-        text = new Label(s);
-        displayPicture = new ImageView(i);
+    private DialogBox(String text, Image image) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
+            fxmlLoader.setController(this);
+            fxmlLoader.setRoot(this);
+            fxmlLoader.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load DialogBox.fxml", e);
+        }
 
-        text.setWrapText(true);
-        displayPicture.setFitWidth(100.0);
-        displayPicture.setFitHeight(100.0);
-        this.setAlignment(Pos.TOP_RIGHT);
-
-        this.getChildren().addAll(text, displayPicture);
+        dialog.setText(text);
+        displayPicture.setImage(image);
     }
 
     /**
