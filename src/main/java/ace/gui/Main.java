@@ -14,8 +14,8 @@ import javafx.stage.Stage;
 /**
  * Entry point for the JavaFX GUI. Builds the chat window's layout — a
  * scrollable message history, a text field, and a send button — following
- * the JavaFX tutorial's Part 2 structure. Not yet wired to Ace's actual
- * command logic; that's added in Part 3.
+ * the JavaFX tutorial's structure, and wires user input through to Ace's
+ * real command logic via {@link AceCore}.
  */
 public class Main extends Application {
     private ScrollPane scrollPane;
@@ -27,6 +27,8 @@ public class Main extends Application {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/Ace User.png"));
     private Image aceImage = new Image(this.getClass().getResourceAsStream("/images/Ace.png"));
 
+    private AceCore aceCore = new AceCore();
+
     @Override
     public void start(Stage stage) {
         // Setting up required components
@@ -37,8 +39,7 @@ public class Main extends Application {
         userInput = new TextField();
         sendButton = new Button("Send");
 
-        DialogBox dialogBox = new DialogBox("Hello!", userImage);
-        dialogContainer.getChildren().addAll(dialogBox);
+        dialogContainer.getChildren().addAll(DialogBox.getAceDialog(aceCore.getWelcomeMessage(), aceImage));
 
         AnchorPane mainLayout = new AnchorPane();
         mainLayout.getChildren().addAll(scrollPane, userInput, sendButton);
@@ -76,8 +77,25 @@ public class Main extends Application {
         AnchorPane.setLeftAnchor(userInput, 1.0);
         AnchorPane.setBottomAnchor(userInput, 1.0);
 
-        stage.show();
+        sendButton.setOnMouseClicked((event) -> handleUserInput());
+        userInput.setOnAction((event) -> handleUserInput());
 
-        // More code to be added here later
+        dialogContainer.heightProperty().addListener((observable) -> scrollPane.setVvalue(1.0));
+
+        stage.show();
+    }
+
+    /**
+     * Reads the current text field content, sends it through {@link AceCore}
+     * exactly as the CLI would process it, and displays both the user's
+     * message and Ace's real response as dialog boxes.
+     */
+    private void handleUserInput() {
+        String userText = userInput.getText();
+        String aceText = aceCore.getResponse(userText);
+        dialogContainer.getChildren().addAll(
+                DialogBox.getUserDialog(userText, userImage),
+                DialogBox.getAceDialog(aceText, aceImage));
+        userInput.clear();
     }
 }
