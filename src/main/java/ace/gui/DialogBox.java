@@ -74,12 +74,12 @@ public class DialogBox extends HBox {
     /**
      * Creates a dialog box for one of Ace's responses.
      *
-     * @param s the message text.
-     * @param i Ace's avatar image.
+     * @param text the message text.
+     * @param image Ace's avatar image.
      * @return a left-aligned dialog box, visually distinct from the user's own messages.
      */
-    public static DialogBox getAceDialog(String s, Image i) {
-        var db = new DialogBox(s, i);
+    public static DialogBox getAceDialog(String text, Image image) {
+        var db = new DialogBox(text, image);
         db.flip();
         return db;
     }
