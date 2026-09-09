@@ -23,6 +23,12 @@ public class Storage {
     private static final Path SAVED_PATH = Paths.get("data", "Ace.txt");
     private static final Path DIRECTORY_PATH = SAVED_PATH.getParent();
 
+    // fixed positions in a save-file line, e.g. "[T][ ] description" or
+    // "[D][X] description (by: ...)" — see parseTask's Javadoc for the full format
+    private static final int TYPE_INDEX = 1;
+    private static final int MARK_INDEX = 4;
+    private static final int DESCRIPTION_START_INDEX = 7;
+
     /**
      * Writes every task currently in taskManager to the save file, overwriting
      * whatever was there before. Called automatically by {@link TaskManager} after
@@ -98,33 +104,41 @@ public class Storage {
      * @throws WrongDateFormatException if the line is a Deadline with an unparseable date.
      */
     private static Task parseTask(String line) throws WrongDateFormatException {
-        char type = line.charAt(1);
-        boolean isMarked = line.charAt(4) == 'X';
-        String rest = line.substring(7);
+        char type = line.charAt(TYPE_INDEX);
+        boolean isMarked = line.charAt(MARK_INDEX) == 'X';
+        String rest = line.substring(DESCRIPTION_START_INDEX);
 
-        Task task = null;
+        Task task;
 
         if (type == 'T') {
             task = new Todo(rest);
         } else if (type == 'D') {
-            int byIndex = rest.lastIndexOf(" (by: ");
+            String byMarker = " (by: ";
+            int byIndex = rest.lastIndexOf(byMarker);
 
             String desc = rest.substring(0, byIndex);
-            String by = rest.substring(byIndex + 6, rest.length() - 1);
+            // -1 strips the trailing ")"
+            String by = rest.substring(byIndex + byMarker.length(), rest.length() - 1);
 
             task = new Deadline(desc, by);
         } else if (type == 'E') {
-            int fromIndex = rest.lastIndexOf(" (from: ");
-            int toIndex = rest.lastIndexOf(" to: ");
+            String fromMarker = " (from: ";
+            String toMarker = " to: ";
+            int fromIndex = rest.lastIndexOf(fromMarker);
+            int toIndex = rest.lastIndexOf(toMarker);
 
             String desc = rest.substring(0, fromIndex);
-            String startTime = rest.substring(fromIndex + 8, toIndex);
-            String endTime = rest.substring(toIndex + 5, rest.length() - 1);
+            String startTime = rest.substring(fromIndex + fromMarker.length(), toIndex);
+            // -1 strips the trailing ")"
+            String endTime = rest.substring(toIndex + toMarker.length(), rest.length() - 1);
 
             task = new Event(desc, startTime, endTime);
+        } else {
+            // unrecognized type character — treated by load() as "skip this line"
+            return null;
         }
 
-        if (task != null && isMarked) {
+        if (isMarked) {
             task.completeTask();
         }
 

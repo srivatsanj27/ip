@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.function.Function;
 
 import ace.exception.WrongDateFormatException;
 
@@ -20,12 +22,23 @@ public class Deadline extends Task {
     // how the time will be displayed in the chatbox
     private static final DateTimeFormatter OUTPUT_TYPE = DateTimeFormatter.ofPattern("MMM dd yyyy 'at' h:mma");
 
+    // an ISO-like alternative to INPUT_TYPE, accepted as a fallback
+    private static final DateTimeFormatter ALTERNATE_INPUT_TYPE = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
     /* another option for the users to not input a timing at all and just give the date. the deadline will be auto
        defaulted to 2359 of that date */
     private static final DateTimeFormatter DATE_ONLY_INPUT = DateTimeFormatter.ofPattern("d/M/yyyy");
     private static final LocalTime DEFAULT_TIME = LocalTime.of(23, 59);
 
-    private LocalDateTime byWhen;
+    /* tried in order until one parses successfully; each entry is a small parser for one
+       accepted input format, so parseDate can just loop over these instead of nesting a
+       try/catch per format */
+    private static final List<Function<String, LocalDateTime>> DATE_PARSERS = List.of(
+            dateString -> LocalDateTime.parse(dateString, INPUT_TYPE),
+            dateString -> LocalDateTime.parse(dateString, ALTERNATE_INPUT_TYPE),
+            dateString -> LocalDate.parse(dateString, DATE_ONLY_INPUT).atTime(DEFAULT_TIME));
+
+    private final LocalDateTime byWhen;
 
     /**
      * Creates a new, incomplete deadline with the given description and due
@@ -73,20 +86,15 @@ public class Deadline extends Task {
      * @throws WrongDateFormatException if dateString matches none of the accepted formats.
      */
     private static LocalDateTime parseDate(String dateString) throws WrongDateFormatException {
-        try {
-            return LocalDateTime.parse(dateString, INPUT_TYPE);
-        } catch (DateTimeParseException e) {
+        for (Function<String, LocalDateTime> parser : DATE_PARSERS) {
             try {
-                return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-            } catch (DateTimeParseException e2) {
-                try {
-                    LocalDate dateOnly = LocalDate.parse(dateString, DATE_ONLY_INPUT);
-                    return dateOnly.atTime(DEFAULT_TIME);
-                } catch (DateTimeParseException e3) {
-                    throw new WrongDateFormatException(dateString);
-                }
+                return parser.apply(dateString);
+            } catch (DateTimeParseException e) {
+                // this format didn't match; fall through and try the next one
             }
         }
+
+        throw new WrongDateFormatException(dateString);
     }
 
     /**

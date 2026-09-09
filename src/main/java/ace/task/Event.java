@@ -6,8 +6,8 @@ package ace.task;
  * value the user types is accepted as-is.
  */
 public class Event extends Task {
-    private String startTime;
-    private String endTime;
+    private final String startTime;
+    private final String endTime;
 
     /**
      * Creates a new, incomplete event with the given description, start time, and
