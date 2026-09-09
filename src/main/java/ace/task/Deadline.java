@@ -15,15 +15,15 @@ import ace.exception.WrongDateFormatException;
  */
 public class Deadline extends Task {
     // how the user is expected to input the time
-    public static final DateTimeFormatter INPUT_TYPE = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+    private static final DateTimeFormatter INPUT_TYPE = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
 
     // how the time will be displayed in the chatbox
-    public static final DateTimeFormatter OUTPUT_TYPE = DateTimeFormatter.ofPattern("MMM dd yyyy 'at' h:mma");
+    private static final DateTimeFormatter OUTPUT_TYPE = DateTimeFormatter.ofPattern("MMM dd yyyy 'at' h:mma");
 
     /* another option for the users to not input a timing at all and just give the date. the deadline will be auto
        defaulted to 2359 of that date */
-    public static final DateTimeFormatter DATE_ONLY_INPUT = DateTimeFormatter.ofPattern("d/M/yyyy");
-    public static final LocalTime DEFAULT_TIME = LocalTime.of(23, 59);
+    private static final DateTimeFormatter DATE_ONLY_INPUT = DateTimeFormatter.ofPattern("d/M/yyyy");
+    private static final LocalTime DEFAULT_TIME = LocalTime.of(23, 59);
 
     private LocalDateTime byWhen;
 
@@ -86,6 +86,26 @@ public class Deadline extends Task {
                     throw new WrongDateFormatException(dateString);
                 }
             }
+        }
+    }
+
+    /**
+     * Parses a date-only string into a {@link LocalDate}, using the same
+     * "d/M/yyyy" format {@link #parseDate(String)} accepts when a deadline is
+     * given a date with no time. Exposed for the command parser's "date"
+     * command, which looks up tasks due on a given day and needs to parse
+     * that day using the same format Deadline itself understands, without
+     * exposing the {@link #DATE_ONLY_INPUT} formatter directly.
+     *
+     * @param dateString the date as text, in "d/M/yyyy" format.
+     * @return the parsed date.
+     * @throws WrongDateFormatException if dateString doesn't match "d/M/yyyy".
+     */
+    public static LocalDate parseDateOnly(String dateString) throws WrongDateFormatException {
+        try {
+            return LocalDate.parse(dateString, DATE_ONLY_INPUT);
+        } catch (DateTimeParseException e) {
+            throw new WrongDateFormatException(dateString);
         }
     }
 

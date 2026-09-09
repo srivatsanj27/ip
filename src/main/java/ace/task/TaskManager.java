@@ -11,15 +11,15 @@ import ace.storage.Storage;
  * to disk via {@link Storage}, so callers never need to save explicitly.
  */
 public class TaskManager {
-    private static final int maxTasks = 100;
+    private static final int MAX_TASKS = 100;
     private int numTasks = 0;
-    private Task[] tasks;
+    private final Task[] tasks;
 
     /**
      * Creates a new, empty task manager.
      */
     public TaskManager() {
-        this.tasks = new Task[100];
+        this.tasks = new Task[MAX_TASKS];
     }
 
     /**

@@ -1,12 +1,10 @@
 package ace.parser;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 import ace.exception.AceException;
 import ace.exception.MissingDescriptionException;
 import ace.exception.WrongCommandException;
-import ace.exception.WrongDateFormatException;
 import ace.exception.WrongTaskNumberException;
 import ace.task.Deadline;
 import ace.task.Event;
@@ -125,24 +123,19 @@ public class Parser {
                 throw new MissingDescriptionException("date");
             }
 
-            LocalDate targetDate;
-            try {
-                targetDate = LocalDate.parse(dateString, Deadline.DATE_ONLY_INPUT);
-            } catch (DateTimeParseException e) {
-                throw new WrongDateFormatException(dateString);
-            }
+            LocalDate targetDate = Deadline.parseDateOnly(dateString);
 
             taskManager.printTasksByDate(targetDate);
             return false;
         }
 
         if (input.equals("find") || input.startsWith("find ")) {
-            String name = input.substring(4).trim();
-            if (name.isEmpty()) {
+            String keyword = input.substring(4).trim();
+            if (keyword.isEmpty()) {
                 throw new MissingDescriptionException("find");
             }
 
-            taskManager.printTasksByName(name);
+            taskManager.printTasksByName(keyword);
             return false;
         }
 
