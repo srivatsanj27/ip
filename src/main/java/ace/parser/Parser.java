@@ -30,6 +30,9 @@ public class Parser {
      * @throws AceException if the input isn't a recognized, well-formed command.
      */
     public static boolean parseCommand(String input, TaskManager taskManager, Ui ui) throws AceException {
+        // "list" and "bye" take no argument, so they're checked with plain equality
+        // rather than isCommand — isCommand's "starts with X " branch exists
+        // specifically to admit a trailing argument, which these commands don't have.
         if (input.equals("list")) {
             taskManager.printTasks();
             return false;
@@ -38,20 +41,21 @@ public class Parser {
             ui.showGoodbye();
             return true;
         }
-        if (input.startsWith("mark ")) {
-            int taskNumber = parseTaskNumber(input.substring(5).trim(), input, taskManager);
+
+        if (isCommand(input, "mark")) {
+            int taskNumber = parseTaskNumber(extractArgument(input, "mark"), input, taskManager);
             taskManager.markTask(taskNumber - 1);
             return false;
         }
 
-        if (input.startsWith("unmark ")) {
-            int taskNumber = parseTaskNumber(input.substring(7).trim(), input, taskManager);
+        if (isCommand(input, "unmark")) {
+            int taskNumber = parseTaskNumber(extractArgument(input, "unmark"), input, taskManager);
             taskManager.unmarkTask(taskNumber - 1);
             return false;
         }
 
-        if (input.equals("todo") || input.startsWith("todo ")) {
-            String todoDescription = input.substring(4).trim();
+        if (isCommand(input, "todo")) {
+            String todoDescription = extractArgument(input, "todo");
             if (todoDescription.isEmpty()) {
                 throw new MissingDescriptionException("todo");
             }
@@ -62,19 +66,20 @@ public class Parser {
             return false;
         }
 
-        if (input.equals("deadline") || input.startsWith("deadline ")) {
-            String card = input.substring(8).trim();
+        if (isCommand(input, "deadline")) {
+            String card = extractArgument(input, "deadline");
             if (card.isEmpty()) {
                 throw new MissingDescriptionException("deadline");
             }
 
-            int byIndex = card.indexOf(" /by ");
+            String byMarker = " /by ";
+            int byIndex = card.indexOf(byMarker);
             if (byIndex == -1) {
                 throw new WrongCommandException(input);
             }
 
             String description = card.substring(0, byIndex).trim();
-            String byWhen = card.substring(byIndex + 5).trim();
+            String byWhen = card.substring(byIndex + byMarker.length()).trim();
 
             Task newDeadline = new Deadline(description, byWhen);
             taskManager.addTask(newDeadline);
@@ -82,21 +87,23 @@ public class Parser {
             return false;
         }
 
-        if (input.equals("event") || input.startsWith("event ")) {
-            String card = input.substring(5).trim();
+        if (isCommand(input, "event")) {
+            String card = extractArgument(input, "event");
             if (card.isEmpty()) {
                 throw new MissingDescriptionException("event");
             }
 
-            int fromIndex = card.indexOf(" /from ");
-            int toIndex = card.indexOf(" /to ");
+            String fromMarker = " /from ";
+            String toMarker = " /to ";
+            int fromIndex = card.indexOf(fromMarker);
+            int toIndex = card.indexOf(toMarker);
             if (fromIndex == -1 || toIndex == -1 || fromIndex >= toIndex) {
                 throw new WrongCommandException(input);
             }
 
             String description = card.substring(0, fromIndex).trim();
-            String startTime = card.substring(fromIndex + 7, toIndex).trim();
-            String endTime = card.substring(toIndex + 5).trim();
+            String startTime = card.substring(fromIndex + fromMarker.length(), toIndex).trim();
+            String endTime = card.substring(toIndex + toMarker.length()).trim();
 
             Task newEvent = new Event(description, startTime, endTime);
             taskManager.addTask(newEvent);
@@ -104,8 +111,8 @@ public class Parser {
             return false;
         }
 
-        if (input.startsWith("delete ")) {
-            String card = input.substring(6).trim();
+        if (isCommand(input, "delete")) {
+            String card = extractArgument(input, "delete");
             if (card.isEmpty()) {
                 throw new MissingDescriptionException("delete");
             }
@@ -117,8 +124,8 @@ public class Parser {
             return false;
         }
 
-        if (input.equals("date") || input.startsWith("date ")) {
-            String dateString = input.substring(4).trim();
+        if (isCommand(input, "date")) {
+            String dateString = extractArgument(input, "date");
             if (dateString.isEmpty()) {
                 throw new MissingDescriptionException("date");
             }
@@ -129,8 +136,8 @@ public class Parser {
             return false;
         }
 
-        if (input.equals("find") || input.startsWith("find ")) {
-            String keyword = input.substring(4).trim();
+        if (isCommand(input, "find")) {
+            String keyword = extractArgument(input, "find");
             if (keyword.isEmpty()) {
                 throw new MissingDescriptionException("find");
             }
@@ -140,6 +147,34 @@ public class Parser {
         }
 
         throw new WrongCommandException(input);
+    }
+
+    /**
+     * Returns whether input is the given command, either bare (e.g. "todo") or
+     * followed by an argument (e.g. "todo borrow book"). Centralizes the
+     * equals-or-starts-with-a-space check every argument-taking command needs,
+     * so each one doesn't repeat it (and risk checking only one of the two
+     * forms, as mark/unmark/delete previously did).
+     *
+     * @param input the raw line of user input.
+     * @param command the command word to check for, with no trailing space.
+     * @return true if input is exactly command, or command followed by a space and more text.
+     */
+    private static boolean isCommand(String input, String command) {
+        return input.equals(command) || input.startsWith(command + " ");
+    }
+
+    /**
+     * Returns whatever follows the command word in input, with surrounding
+     * whitespace trimmed. Assumes {@link #isCommand(String, String)} has
+     * already confirmed input actually starts with command.
+     *
+     * @param input the raw line of user input.
+     * @param command the command word to strip off the front.
+     * @return the trimmed remainder of input after command.
+     */
+    private static String extractArgument(String input, String command) {
+        return input.substring(command.length()).trim();
     }
 
     /**

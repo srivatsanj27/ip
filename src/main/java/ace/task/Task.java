@@ -7,7 +7,7 @@ package ace.task;
  * persist itself.
  */
 public abstract class Task {
-    private String description;
+    private final String description;
     private boolean isCompleted;
 
     /**

@@ -130,10 +130,10 @@ public class TaskManager {
         if (this.getCurrentNumberOfTasks() == 0) {
             System.out.println("Your hand is currently empty!");
             return;
-        } else {
-            for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
-                System.out.println(" " + (i + 1) + "." + tasks[i]);
-            }
+        }
+
+        for (int i = 0; i < this.getCurrentNumberOfTasks(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks[i]);
         }
     }
 
@@ -170,16 +170,16 @@ public class TaskManager {
      * Prints every task in the list whose description contains the given text,
      * numbered from 1, or a message if none match.
      *
-     * @param name the text to search for within each task's description.
+     * @param keyword the text to search for within each task's description.
      */
-    public void printTasksByName(String name) {
-        System.out.println("Here are your matching cards which include the name " + name + ":");
+    public void printTasksByName(String keyword) {
+        System.out.println("Here are your matching cards which include the keyword " + keyword + ":");
 
         int count = 0;
         for (int i = 0; i < numTasks; i++) {
             Task task = tasks[i];
 
-            if (task.getDescription().contains(name)) {
+            if (task.getDescription().contains(keyword)) {
                 System.out.println(" " + (count + 1) + "." + task);
                 count++;
             }

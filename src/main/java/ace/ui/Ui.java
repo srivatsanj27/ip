@@ -97,24 +97,4 @@ public class Ui {
         System.out.println(task);
         System.out.printf("You now have a total of %d cards in your hand!%n", totalTasks);
     }
-
-    /**
-     * Prints a confirmation that a task was marked as completed.
-     *
-     * @param task the task that was just marked.
-     */
-    public void showTaskMarked(Task task) {
-        System.out.println("You have folded this card!");
-        System.out.println(task);
-    }
-
-    /**
-     * Prints a confirmation that a task was marked as not completed.
-     *
-     * @param task the task that was just unmarked.
-     */
-    public void showTaskUnmarked(Task task) {
-        System.out.println("You have been dealt this card again!");
-        System.out.println(task);
-    }
 }
