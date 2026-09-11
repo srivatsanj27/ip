@@ -204,6 +204,15 @@ public class Parser {
             throw new WrongTaskNumberException(taskNumber);
         }
 
+        // Postcondition: every out-of-range case has already been thrown
+        // above, so the value about to be returned should always be a valid,
+        // in-range task number — this is the guarantee callers (e.g.
+        // TaskManager's own bounds assertions) rely on. Asserting it here
+        // would catch a bug if a future change to the checks above broke
+        // that guarantee.
+        assert taskNumber >= 1 && taskNumber <= taskManager.getCurrentNumberOfTasks()
+                : "parseTaskNumber is returning an out-of-range value: " + taskNumber;
+
         return taskNumber;
     }
 }
