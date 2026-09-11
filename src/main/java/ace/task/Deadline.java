@@ -4,8 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 
 import ace.exception.WrongDateFormatException;
@@ -19,8 +23,16 @@ public class Deadline extends Task {
     // how the user is expected to input the time
     private static final DateTimeFormatter INPUT_TYPE = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
 
-    // how the time will be displayed in the chatbox
-    private static final DateTimeFormatter OUTPUT_TYPE = DateTimeFormatter.ofPattern("MMM dd yyyy 'at' h:mma");
+    // how the time will be displayed in the chatbox. Locale.US pins the month name
+    // (so it doesn't vary with the machine's default locale), but the am/pm marker
+    // needs its own explicit lowercase mapping on top of that: Locale.US's CLDR
+    // data actually renders it as uppercase "AM"/"PM" on modern JDKs, which is a
+    // different case than what this locale-agnostic-looking pattern implies, and
+    // is exactly what caused this to pass locally but fail in CI.
+    private static final DateTimeFormatter OUTPUT_TYPE = new DateTimeFormatterBuilder()
+            .appendPattern("MMM dd yyyy 'at' h:mm")
+            .appendText(ChronoField.AMPM_OF_DAY, Map.of(0L, "am", 1L, "pm"))
+            .toFormatter(Locale.US);
 
     // an ISO-like alternative to INPUT_TYPE, accepted as a fallback
     private static final DateTimeFormatter ALTERNATE_INPUT_TYPE = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");

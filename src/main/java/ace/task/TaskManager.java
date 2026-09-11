@@ -2,6 +2,7 @@ package ace.task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import ace.storage.Storage;
 
@@ -145,7 +146,9 @@ public class TaskManager {
      * @param targetDate the date to filter deadlines by.
      */
     public void printTasksByDate(LocalDate targetDate) {
-        String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+        // Locale pinned to US so the month name renders consistently regardless of
+        // the machine's default locale — same reasoning as Deadline.OUTPUT_TYPE.
+        String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.US));
         System.out.println("Here are your cards due on " + formattedDate + ":");
 
         int count = 0;
