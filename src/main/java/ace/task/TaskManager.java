@@ -40,6 +40,14 @@ public class TaskManager {
      * @param index the zero-based index of the task to remove.
      */
     public void deleteTask(int index) {
+        // deleteTask is only ever called by Parser after parseTaskNumber has
+        // already checked the task number is within [1, numTasks], so index
+        // should always be in range by the time it reaches here. A bug in
+        // that validation, not user input, is the only thing that could
+        // break this assumption.
+        assert index >= 0 && index < numTasks
+                : "deleteTask index " + index + " is out of range (numTasks=" + numTasks + ")";
+
         for (int i = index + 1; i < this.getCurrentNumberOfTasks(); i++) {
             this.tasks[i - 1] = this.tasks[i];
         }
@@ -57,6 +65,13 @@ public class TaskManager {
      * @return the task at that index.
      */
     public Task getTask(int index) {
+        // Every caller (Parser, after validating a user-given task number via
+        // parseTaskNumber; Storage, iterating 0..numTasks-1 when saving) should
+        // only ever pass an in-range index. A violation here would mean a bug
+        // in the caller's own logic, not something reachable through normal
+        // user input, so this is an assertion rather than a thrown exception.
+        assert index >= 0 && index < numTasks
+                : "getTask index " + index + " is out of range (numTasks=" + numTasks + ")";
         return tasks[index];
     }
 
@@ -76,6 +91,12 @@ public class TaskManager {
      * @param index the zero-based index of the task to mark.
      */
     public void markTask(int index) {
+        // Same assumption as deleteTask: Parser always validates the task
+        // number before calling this, so an out-of-range index here would
+        // point to a bug in that validation rather than something a user
+        // could trigger by typing an invalid "mark" command.
+        assert index >= 0 && index < numTasks
+                : "markTask index " + index + " is out of range (numTasks=" + numTasks + ")";
         this.tasks[index].completeTask();
         System.out.println("You have checked this card!");
         System.out.println(tasks[index]);
@@ -90,6 +111,10 @@ public class TaskManager {
      * @param index the zero-based index of the task to unmark.
      */
     public void unmarkTask(int index) {
+        // Same assumption as markTask/deleteTask: Parser always validates the
+        // task number before calling this.
+        assert index >= 0 && index < numTasks
+                : "unmarkTask index " + index + " is out of range (numTasks=" + numTasks + ")";
         this.tasks[index].resetTask();
         System.out.println("You have unchecked this card again!");
         System.out.println(tasks[index]);
