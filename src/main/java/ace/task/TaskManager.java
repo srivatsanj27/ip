@@ -171,18 +171,25 @@ public class TaskManager {
     }
     /**
      * Prints every task in the list whose description contains the given text,
-     * numbered from 1, or a message if none match.
+     * numbered from 1, or a message if none match. The match is case-insensitive,
+     * so a keyword can find tasks regardless of how either side is capitalized.
      *
      * @param keyword the text to search for within each task's description.
      */
     public void printTasksByName(String keyword) {
         System.out.println("Here are your matching cards which include the keyword " + keyword + ":");
 
+        // Locale.ROOT avoids a locale-specific lowercasing quirk (e.g. Turkish
+        // locale mapping 'I' to 'ı' instead of 'i'), same reasoning as the
+        // Locale.US pin on Deadline's date formatter — this should behave
+        // identically no matter which machine or JVM locale runs it.
+        String lowerKeyword = keyword.toLowerCase(Locale.ROOT);
+
         int count = 0;
         for (int i = 0; i < numTasks; i++) {
             Task task = tasks[i];
 
-            if (task.getDescription().contains(keyword)) {
+            if (task.getDescription().toLowerCase(Locale.ROOT).contains(lowerKeyword)) {
                 System.out.println(" " + (count + 1) + "." + task);
                 count++;
             }
