@@ -48,7 +48,7 @@ public class MainWindow {
      */
     public void setAceCore(AceCore aceCore) {
         this.aceCore = aceCore;
-        dialogContainer.getChildren().addAll(DialogBox.getAceDialog(aceCore.getWelcomeMessage(), aceImage));
+        dialogContainer.getChildren().addAll(DialogBox.getAceDialog(aceCore.getWelcomeMessage(), aceImage, false));
     }
 
     /**
@@ -64,7 +64,7 @@ public class MainWindow {
         String aceText = aceCore.getResponse(userText);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(userText, userImage),
-                DialogBox.getAceDialog(aceText, aceImage));
+                DialogBox.getAceDialog(aceText, aceImage, aceCore.isError()));
         userInput.clear();
 
         if (aceCore.isExit()) {

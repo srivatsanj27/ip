@@ -20,8 +20,8 @@ import javafx.scene.shape.Circle;
  * avatar image, laid out side by side. Its layout is defined in
  * {@code DialogBox.fxml}, loaded into this instance via the {@code fx:root}
  * pattern. Use {@link #getUserDialog(String, Image)} or
- * {@link #getAceDialog(String, Image)} to create one, rather than the
- * constructor directly, so user and Ace messages are styled consistently.
+ * {@link #getAceDialog(String, Image, boolean)} to create one, rather than
+ * the constructor directly, so user and Ace messages are styled consistently.
  */
 public class DialogBox extends HBox {
     @FXML
@@ -76,11 +76,17 @@ public class DialogBox extends HBox {
      *
      * @param text the message text.
      * @param image Ace's avatar image.
+     * @param isError true if this response is an error message, so it should
+     *     be highlighted (red background, white text) to catch the user's
+     *     attention, rather than styled like a normal Ace reply.
      * @return a left-aligned dialog box, visually distinct from the user's own messages.
      */
-    public static DialogBox getAceDialog(String text, Image image) {
+    public static DialogBox getAceDialog(String text, Image image, boolean isError) {
         var db = new DialogBox(text, image);
         db.flip();
+        if (isError) {
+            db.dialog.getStyleClass().add("error-label");
+        }
         return db;
     }
 }

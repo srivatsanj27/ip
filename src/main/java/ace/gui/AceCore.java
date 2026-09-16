@@ -20,6 +20,7 @@ public class AceCore {
     private final TaskManager taskManager;
     private final Ui ui;
     private boolean isExit;
+    private boolean isError;
 
     /** Creates a new AceCore, loading any previously saved tasks. */
     public AceCore() {
@@ -48,10 +49,12 @@ public class AceCore {
      * @return Ace's response text.
      */
     public String getResponse(String input) {
+        isError = false;
         return capture(() -> {
             try {
                 isExit = Parser.parseCommand(input, taskManager, ui);
             } catch (AceException exception) {
+                isError = true;
                 ui.showError(exception.getMessage());
             }
         });
@@ -64,6 +67,17 @@ public class AceCore {
      */
     public boolean isExit() {
         return isExit;
+    }
+
+    /**
+     * Returns whether the most recently processed command resulted in an
+     * error (i.e. threw an {@link AceException}), so the GUI can highlight
+     * that reply differently from a normal response.
+     *
+     * @return true if the last command's response was an error message.
+     */
+    public boolean isError() {
+        return isError;
     }
 
     private String capture(Runnable action) {
