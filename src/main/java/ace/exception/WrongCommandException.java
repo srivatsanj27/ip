@@ -11,11 +11,12 @@ public class WrongCommandException extends AceException {
     /**
      * Creates a new exception for input that couldn't be understood as a command.
      *
-     * @param input the full, unrecognized or malformed user input.
+     * @param message a specific, user-facing explanation of what was wrong
+     *     with the input and how to fix it (e.g. what usage the command
+     *     expects), or — for a genuinely unrecognized command word — the
+     *     full input itself.
      */
-    public WrongCommandException(String input) {
-        String toBePrinted = String.format(
-                "Oh no! This card has to be discarded as I do not understand the command %s! ", input);
-        super(toBePrinted);
+    public WrongCommandException(String message) {
+        super(message);
     }
 }

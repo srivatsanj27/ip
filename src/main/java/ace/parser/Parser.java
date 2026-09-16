@@ -19,6 +19,10 @@ import ace.ui.Ui;
  * the one place that knows what each command word means.
  */
 public class Parser {
+    // Shared opening for every "something's wrong with this command" message,
+    // so each throw site below only needs to supply the specific reason and
+    // usage hint, not repeat this phrase every time.
+    private static final String DISCARD_PREFIX = "Oh no! This card has to be discarded! ";
 
     /**
      * Parses one line of user input and executes the command it represents.
@@ -43,13 +47,13 @@ public class Parser {
         }
 
         if (isCommand(input, "mark")) {
-            int taskNumber = parseTaskNumber(extractArgument(input, "mark"), input, taskManager);
+            int taskNumber = parseTaskNumber(extractArgument(input, "mark"), "mark", taskManager);
             taskManager.markTask(taskNumber - 1);
             return false;
         }
 
         if (isCommand(input, "unmark")) {
-            int taskNumber = parseTaskNumber(extractArgument(input, "unmark"), input, taskManager);
+            int taskNumber = parseTaskNumber(extractArgument(input, "unmark"), "unmark", taskManager);
             taskManager.unmarkTask(taskNumber - 1);
             return false;
         }
@@ -57,7 +61,8 @@ public class Parser {
         if (isCommand(input, "todo")) {
             String todoDescription = extractArgument(input, "todo");
             if (todoDescription.isEmpty()) {
-                throw new MissingDescriptionException("todo");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "A todo needs a description! Try: todo <description>");
             }
 
             Task newTodo = new Todo(todoDescription);
@@ -67,19 +72,33 @@ public class Parser {
         }
 
         if (isCommand(input, "deadline")) {
+            String deadlineUsage = "Try: deadline <description> /by <date>";
             String card = extractArgument(input, "deadline");
             if (card.isEmpty()) {
-                throw new MissingDescriptionException("deadline");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
             }
 
-            String byMarker = " /by ";
+            // Bare marker (no required surrounding spaces), so a missing
+            // description or date/time before/after it doesn't hide the
+            // marker itself — see the note on the event branch below for why.
+            String byMarker = "/by";
             int byIndex = card.indexOf(byMarker);
             if (byIndex == -1) {
-                throw new WrongCommandException(input);
+                throw new WrongCommandException(DISCARD_PREFIX + "A deadline needs '/by'! " + deadlineUsage);
             }
 
             String description = card.substring(0, byIndex).trim();
             String byWhen = card.substring(byIndex + byMarker.length()).trim();
+
+            if (description.isEmpty()) {
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
+            }
+            if (byWhen.isEmpty()) {
+                throw new WrongCommandException(
+                        DISCARD_PREFIX + "Please give a date after '/by'! " + deadlineUsage);
+            }
 
             Task newDeadline = new Deadline(description, byWhen);
             taskManager.addTask(newDeadline);
@@ -88,22 +107,43 @@ public class Parser {
         }
 
         if (isCommand(input, "event")) {
+            String eventUsage = "Try: event <description> /from <start> /to <end>";
             String card = extractArgument(input, "event");
             if (card.isEmpty()) {
-                throw new MissingDescriptionException("event");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "An event needs a description! " + eventUsage);
             }
 
-            String fromMarker = " /from ";
-            String toMarker = " /to ";
+            // Bare markers (no required surrounding spaces): matching
+            // " /from " and " /to " literally meant an empty description,
+            // start time, or end time could make the adjacent marker's
+            // required space disappear (trimmed away at the edges, or
+            // merged into one shared space between two adjacent markers) —
+            // the latter previously caused a crash, since the two markers'
+            // computed positions could overlap. Explicit emptiness checks
+            // below now catch all three cases instead.
+            String fromMarker = "/from";
+            String toMarker = "/to";
             int fromIndex = card.indexOf(fromMarker);
             int toIndex = card.indexOf(toMarker);
-            if (fromIndex == -1 || toIndex == -1 || fromIndex >= toIndex) {
-                throw new WrongCommandException(input);
+            if (fromIndex == -1 || toIndex == -1 || fromIndex + fromMarker.length() > toIndex) {
+                throw new WrongCommandException(
+                        DISCARD_PREFIX + "An event needs both '/from' and '/to', with '/from' first! "
+                                + eventUsage);
             }
 
             String description = card.substring(0, fromIndex).trim();
             String startTime = card.substring(fromIndex + fromMarker.length(), toIndex).trim();
             String endTime = card.substring(toIndex + toMarker.length()).trim();
+
+            if (description.isEmpty()) {
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "An event needs a description! " + eventUsage);
+            }
+            if (startTime.isEmpty() || endTime.isEmpty()) {
+                throw new WrongCommandException(
+                        DISCARD_PREFIX + "Please give both a start time and an end time! " + eventUsage);
+            }
 
             Task newEvent = new Event(description, startTime, endTime);
             taskManager.addTask(newEvent);
@@ -114,10 +154,11 @@ public class Parser {
         if (isCommand(input, "delete")) {
             String card = extractArgument(input, "delete");
             if (card.isEmpty()) {
-                throw new MissingDescriptionException("delete");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "Please give a task number! Try: delete <task number>");
             }
 
-            int taskNumber = parseTaskNumber(card, input, taskManager);
+            int taskNumber = parseTaskNumber(card, "delete", taskManager);
             Task deletedTask = taskManager.getTask(taskNumber - 1);
             taskManager.deleteTask(taskNumber - 1);
             ui.showTaskDeleted(deletedTask, taskManager.getCurrentNumberOfTasks());
@@ -127,7 +168,8 @@ public class Parser {
         if (isCommand(input, "date")) {
             String dateString = extractArgument(input, "date");
             if (dateString.isEmpty()) {
-                throw new MissingDescriptionException("date");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "Please give a date! Try: date <date>");
             }
 
             LocalDate targetDate = Deadline.parseDateOnly(dateString);
@@ -139,14 +181,15 @@ public class Parser {
         if (isCommand(input, "find")) {
             String keyword = extractArgument(input, "find");
             if (keyword.isEmpty()) {
-                throw new MissingDescriptionException("find");
+                throw new MissingDescriptionException(
+                        DISCARD_PREFIX + "Please give a keyword to search for! Try: find <keyword>");
             }
 
             taskManager.printTasksByName(keyword);
             return false;
         }
 
-        throw new WrongCommandException(input);
+        throw new WrongCommandException(DISCARD_PREFIX + "I do not understand the command \"" + input + "\"!");
     }
 
     /**
@@ -166,15 +209,19 @@ public class Parser {
 
     /**
      * Returns whatever follows the command word in input, with surrounding
-     * whitespace trimmed. Assumes {@link #isCommand(String, String)} has
-     * already confirmed input actually starts with command.
+     * whitespace trimmed and any run of internal whitespace (e.g. accidental
+     * double spaces) collapsed to a single space. Collapsing internal
+     * whitespace also means a marker like " /by " is still found correctly
+     * even if the user typed extra spaces around it (e.g. "test  /by  2pm").
+     * Assumes {@link #isCommand(String, String)} has already confirmed input
+     * actually starts with command.
      *
      * @param input the raw line of user input.
      * @param command the command word to strip off the front.
-     * @return the trimmed remainder of input after command.
+     * @return the trimmed, whitespace-normalized remainder of input after command.
      */
     private static String extractArgument(String input, String command) {
-        return input.substring(command.length()).trim();
+        return input.substring(command.length()).trim().replaceAll("\\s+", " ");
     }
 
     /**
@@ -184,20 +231,24 @@ public class Parser {
      * usable 1-based task number.
      *
      * @param input the task number argument, expected to be a plain integer.
-     * @param originalInput the full original command, used to build a clear error message if input isn't numeric.
+     * @param command the command word this argument was given to (e.g.
+     *     "mark"), used to build a clear, command-specific error message if
+     *     input isn't numeric.
      * @param taskManager the task list, used to check the number is in range.
      * @return the parsed, validated 1-based task number.
      * @throws WrongCommandException if input isn't a valid integer.
      * @throws WrongTaskNumberException if input is a valid integer but out of range.
      */
-    private static int parseTaskNumber(String input, String originalInput, TaskManager taskManager)
+    private static int parseTaskNumber(String input, String command, TaskManager taskManager)
             throws AceException {
         int taskNumber;
 
         try {
             taskNumber = Integer.parseInt(input);
         } catch (NumberFormatException e) {
-            throw new WrongCommandException(originalInput);
+            throw new WrongCommandException(
+                    DISCARD_PREFIX + "\"" + input + "\" isn't a valid task number! Try: "
+                            + command + " <task number>");
         }
 
         if (taskNumber <= 0 || taskNumber > taskManager.getCurrentNumberOfTasks()) {

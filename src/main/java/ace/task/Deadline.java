@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.Locale;
@@ -20,8 +21,16 @@ import ace.exception.WrongDateFormatException;
  * how the deadline is saved to disk versus how it's shown to the user.
  */
 public class Deadline extends Task {
-    // how the user is expected to input the time
-    private static final DateTimeFormatter INPUT_TYPE = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+    // how the user is expected to input the time. STRICT resolver style rejects
+    // calendar-invalid dates (e.g. 30/2/2019) outright, rather than the default
+    // SMART style's behavior of silently clamping them to the nearest valid date
+    // (30/2/2019 would otherwise silently become 28/2/2019). Uses "uuuu" rather
+    // than "yyyy" for the year: under STRICT, "yyyy" means year-of-era and
+    // requires an explicit era (AD/BC) to resolve, which nothing here provides,
+    // so it would fail to parse every date, not just invalid ones; "uuuu" (the
+    // proleptic year) has no such requirement.
+    private static final DateTimeFormatter INPUT_TYPE =
+            DateTimeFormatter.ofPattern("d/M/uuuu HHmm").withResolverStyle(ResolverStyle.STRICT);
 
     // how the time will be displayed in the chatbox. Locale.US pins the month name
     // (so it doesn't vary with the machine's default locale), but the am/pm marker
@@ -34,12 +43,15 @@ public class Deadline extends Task {
             .appendText(ChronoField.AMPM_OF_DAY, Map.of(0L, "am", 1L, "pm"))
             .toFormatter(Locale.US);
 
-    // an ISO-like alternative to INPUT_TYPE, accepted as a fallback
-    private static final DateTimeFormatter ALTERNATE_INPUT_TYPE = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    // an ISO-like alternative to INPUT_TYPE, accepted as a fallback. Same
+    // STRICT/"uuuu" reasoning as INPUT_TYPE above.
+    private static final DateTimeFormatter ALTERNATE_INPUT_TYPE =
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm").withResolverStyle(ResolverStyle.STRICT);
 
     /* another option for the users to not input a timing at all and just give the date. the deadline will be auto
-       defaulted to 2359 of that date */
-    private static final DateTimeFormatter DATE_ONLY_INPUT = DateTimeFormatter.ofPattern("d/M/yyyy");
+       defaulted to 2359 of that date. Same STRICT/"uuuu" reasoning as INPUT_TYPE above. */
+    private static final DateTimeFormatter DATE_ONLY_INPUT =
+            DateTimeFormatter.ofPattern("d/M/uuuu").withResolverStyle(ResolverStyle.STRICT);
     private static final LocalTime DEFAULT_TIME = LocalTime.of(23, 59);
 
     /* tried in order until one parses successfully; each entry is a small parser for one
