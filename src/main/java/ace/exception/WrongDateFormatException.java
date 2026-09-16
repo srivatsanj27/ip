@@ -12,7 +12,9 @@ public class WrongDateFormatException extends AceException {
      * @param input the text that failed to parse as a date/time.
      */
     public WrongDateFormatException(String input) {
-        String toBePrinted = String.format("Oh no! I could not read %s as it is not in the expected format!", input);
-        super(toBePrinted);
+        super(String.format(
+                "Oh no! I could not read %s as it is not in the expected format! "
+                        + "Try: d/M/yyyy HHmm (e.g. 2/12/2019 1800), or just d/M/yyyy for no specific time.",
+                input));
     }
 }
