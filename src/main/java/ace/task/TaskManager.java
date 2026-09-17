@@ -149,7 +149,7 @@ public class TaskManager {
         // Locale pinned to US so the month name renders consistently regardless of
         // the machine's default locale — same reasoning as Deadline.OUTPUT_TYPE.
         String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.US));
-        System.out.println("Here are your cards due on " + formattedDate + ":");
+        System.out.println("Here's what's on the table for " + formattedDate + ":");
 
         int count = 0;
         for (int i = 0; i < numTasks; i++) {
@@ -177,7 +177,7 @@ public class TaskManager {
      * @param keyword the text to search for within each task's description.
      */
     public void printTasksByName(String keyword) {
-        System.out.println("Here are your matching cards which include the keyword " + keyword + ":");
+        System.out.println("Here's what's in your hand matching '" + keyword + "':");
 
         // Locale.ROOT avoids a locale-specific lowercasing quirk (e.g. Turkish
         // locale mapping 'I' to 'ı' instead of 'i'), same reasoning as the
@@ -196,7 +196,7 @@ public class TaskManager {
         }
 
         if (count == 0) {
-            System.out.println("You do not have any such cards!");
+            System.out.println("No such cards in your hand! Better luck next time!");
         }
     }
 }
