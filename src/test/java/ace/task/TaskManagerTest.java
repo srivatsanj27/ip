@@ -156,6 +156,89 @@ public class TaskManagerTest {
         assertTrue(output.contains("No cards due on this date!"));
     }
 
+    @Test
+    public void printTasksByName_exactCaseMatch_listsMatchingTask() {
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("read book"));
+        taskManager.addTask(new Todo("write essay"));
+
+        String output = captureStdout(() -> taskManager.printTasksByName("book"));
+
+        assertTrue(output.contains("read book"));
+        assertFalse(output.contains("write essay"));
+    }
+
+    @Test
+    public void printTasksByName_differentCaseInKeywordAndTask_stillMatches() {
+        // The match must be case-insensitive regardless of which side (the stored
+        // description or the search keyword) is capitalized differently.
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("Read BOOK"));
+
+        String upperKeyword = captureStdout(() -> taskManager.printTasksByName("BOOK"));
+        String lowerKeyword = captureStdout(() -> taskManager.printTasksByName("book"));
+        String mixedKeyword = captureStdout(() -> taskManager.printTasksByName("BoOk"));
+
+        assertTrue(upperKeyword.contains("Read BOOK"));
+        assertTrue(lowerKeyword.contains("Read BOOK"));
+        assertTrue(mixedKeyword.contains("Read BOOK"));
+    }
+
+    @Test
+    public void printTasksByName_partialSubstringMatch_listsMatchingTask() {
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("read book"));
+
+        String output = captureStdout(() -> taskManager.printTasksByName("boo"));
+
+        assertTrue(output.contains("read book"));
+    }
+
+    @Test
+    public void printTasksByName_multipleMatches_listsAllInOrder() {
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("read book"));
+        taskManager.addTask(new Todo("write essay"));
+        taskManager.addTask(new Todo("return book"));
+
+        String output = captureStdout(() -> taskManager.printTasksByName("book"));
+
+        assertTrue(output.contains(" 1.") && output.contains("read book"));
+        assertTrue(output.contains(" 2.") && output.contains("return book"));
+        assertFalse(output.contains("write essay"));
+    }
+
+    @Test
+    public void printTasksByName_noMatch_showsNoSuchCardsMessage() {
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("read book"));
+
+        String output = captureStdout(() -> taskManager.printTasksByName("zzz"));
+
+        assertTrue(output.contains("No such cards in your hand!"));
+    }
+
+    @Test
+    public void printTasks_emptyList_showsEmptyHandMessage() {
+        TaskManager taskManager = new TaskManager();
+
+        String output = captureStdout(taskManager::printTasks);
+
+        assertTrue(output.contains("Your hand is currently empty!"));
+    }
+
+    @Test
+    public void printTasks_populatedList_listsAllTasksNumbered() {
+        TaskManager taskManager = new TaskManager();
+        taskManager.addTask(new Todo("first"));
+        taskManager.addTask(new Todo("second"));
+
+        String output = captureStdout(taskManager::printTasks);
+
+        assertTrue(output.contains(" 1.") && output.contains("first"));
+        assertTrue(output.contains(" 2.") && output.contains("second"));
+    }
+
     private interface ThrowingRunnable {
         void run() throws Exception;
     }

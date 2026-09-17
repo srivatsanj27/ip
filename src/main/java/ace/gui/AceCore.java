@@ -37,7 +37,7 @@ public class AceCore {
      * @return the welcome message text.
      */
     public String getWelcomeMessage() {
-        return "Hi! I'm Ace, your poker-themed task manager! Shall we begin our game?";
+        return "Hi! I'm Ace, your poker-themed task manager! Shall I deal you out a few cards to get started?";
     }
 
     /**
