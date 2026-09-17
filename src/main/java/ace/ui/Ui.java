@@ -50,7 +50,7 @@ public class Ui {
         System.out.println("Hello from\n" + logo);
         showLine();
         System.out.println(" Hello! I'm ACE, your personal poker-themed task manager!");
-        System.out.println(" Shall we begin our game?");
+        System.out.println(" Shall I deal you out a few cards to get started?");
         showLine();
     }
 
@@ -80,7 +80,7 @@ public class Ui {
      * @param totalTasks the total number of tasks now in the list.
      */
     public void showTaskAdded(Task task, String taskType, int totalTasks) {
-        System.out.println("Great! I've added a new " + taskType + " card to your hand!");
+        System.out.println("Great! I've dealt a new " + taskType + " card to your hand!");
         System.out.println(task);
         System.out.printf("You now have a total of %d cards in your hand!%n", totalTasks);
     }
@@ -93,7 +93,7 @@ public class Ui {
      * @param totalTasks the total number of tasks now in the list.
      */
     public void showTaskDeleted(Task task, int totalTasks) {
-        System.out.println("Got it, you have discarded this card!");
+        System.out.println("Mucked! This card is now out of your hand!");
         System.out.println(task);
         System.out.printf("You now have a total of %d cards in your hand!%n", totalTasks);
     }
