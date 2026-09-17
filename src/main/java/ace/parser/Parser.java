@@ -26,6 +26,9 @@ public class Parser {
 
     /**
      * Parses one line of user input and executes the command it represents.
+     * Only responsible for recognizing which command input is and dispatching
+     * to that command's own handler — the actual argument parsing, validation,
+     * and task-list changes for each command live in its handler method.
      *
      * @param input the raw line of user input.
      * @param taskManager the task list to act on.
@@ -38,158 +41,277 @@ public class Parser {
         // rather than isCommand — isCommand's "starts with X " branch exists
         // specifically to admit a trailing argument, which these commands don't have.
         if (input.equals("list")) {
-            taskManager.printTasks();
-            return false;
+            return handleList(taskManager);
         }
         if (input.equals("bye")) {
-            ui.showGoodbye();
-            return true;
+            return handleBye(ui);
         }
-
         if (isCommand(input, "mark")) {
-            int taskNumber = parseTaskNumber(extractArgument(input, "mark"), "mark", taskManager);
-            taskManager.markTask(taskNumber - 1);
-            return false;
+            return handleMark(input, taskManager);
         }
-
         if (isCommand(input, "unmark")) {
-            int taskNumber = parseTaskNumber(extractArgument(input, "unmark"), "unmark", taskManager);
-            taskManager.unmarkTask(taskNumber - 1);
-            return false;
+            return handleUnmark(input, taskManager);
         }
-
         if (isCommand(input, "todo")) {
-            String todoDescription = extractArgument(input, "todo");
-            if (todoDescription.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "A todo needs a description! Try: todo <description>");
-            }
-
-            Task newTodo = new Todo(todoDescription);
-            taskManager.addTask(newTodo);
-            ui.showTaskAdded(newTodo, "To-Do", taskManager.getCurrentNumberOfTasks());
-            return false;
+            return handleTodo(input, taskManager, ui);
         }
-
         if (isCommand(input, "deadline")) {
-            String deadlineUsage = "Try: deadline <description> /by <date>";
-            String card = extractArgument(input, "deadline");
-            if (card.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
-            }
-
-            // Bare marker (no required surrounding spaces), so a missing
-            // description or date/time before/after it doesn't hide the
-            // marker itself — see the note on the event branch below for why.
-            String byMarker = "/by";
-            int byIndex = card.indexOf(byMarker);
-            if (byIndex == -1) {
-                throw new WrongCommandException(DISCARD_PREFIX + "A deadline needs '/by'! " + deadlineUsage);
-            }
-
-            String description = card.substring(0, byIndex).trim();
-            String byWhen = card.substring(byIndex + byMarker.length()).trim();
-
-            if (description.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
-            }
-            if (byWhen.isEmpty()) {
-                throw new WrongCommandException(
-                        DISCARD_PREFIX + "Please give a date after '/by'! " + deadlineUsage);
-            }
-
-            Task newDeadline = new Deadline(description, byWhen);
-            taskManager.addTask(newDeadline);
-            ui.showTaskAdded(newDeadline, "Deadline", taskManager.getCurrentNumberOfTasks());
-            return false;
+            return handleDeadline(input, taskManager, ui);
         }
-
         if (isCommand(input, "event")) {
-            String eventUsage = "Try: event <description> /from <start> /to <end>";
-            String card = extractArgument(input, "event");
-            if (card.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "An event needs a description! " + eventUsage);
-            }
-
-            // Bare markers (no required surrounding spaces): matching
-            // " /from " and " /to " literally meant an empty description,
-            // start time, or end time could make the adjacent marker's
-            // required space disappear (trimmed away at the edges, or
-            // merged into one shared space between two adjacent markers) —
-            // the latter previously caused a crash, since the two markers'
-            // computed positions could overlap. Explicit emptiness checks
-            // below now catch all three cases instead.
-            String fromMarker = "/from";
-            String toMarker = "/to";
-            int fromIndex = card.indexOf(fromMarker);
-            int toIndex = card.indexOf(toMarker);
-            if (fromIndex == -1 || toIndex == -1 || fromIndex + fromMarker.length() > toIndex) {
-                throw new WrongCommandException(
-                        DISCARD_PREFIX + "An event needs both '/from' and '/to', with '/from' first! "
-                                + eventUsage);
-            }
-
-            String description = card.substring(0, fromIndex).trim();
-            String startTime = card.substring(fromIndex + fromMarker.length(), toIndex).trim();
-            String endTime = card.substring(toIndex + toMarker.length()).trim();
-
-            if (description.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "An event needs a description! " + eventUsage);
-            }
-            if (startTime.isEmpty() || endTime.isEmpty()) {
-                throw new WrongCommandException(
-                        DISCARD_PREFIX + "Please give both a start time and an end time! " + eventUsage);
-            }
-
-            Task newEvent = new Event(description, startTime, endTime);
-            taskManager.addTask(newEvent);
-            ui.showTaskAdded(newEvent, "Event", taskManager.getCurrentNumberOfTasks());
-            return false;
+            return handleEvent(input, taskManager, ui);
         }
-
         if (isCommand(input, "delete")) {
-            String card = extractArgument(input, "delete");
-            if (card.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "Please give a task number! Try: delete <task number>");
-            }
-
-            int taskNumber = parseTaskNumber(card, "delete", taskManager);
-            Task deletedTask = taskManager.getTask(taskNumber - 1);
-            taskManager.deleteTask(taskNumber - 1);
-            ui.showTaskDeleted(deletedTask, taskManager.getCurrentNumberOfTasks());
-            return false;
+            return handleDelete(input, taskManager, ui);
         }
-
         if (isCommand(input, "date")) {
-            String dateString = extractArgument(input, "date");
-            if (dateString.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "Please give a date! Try: date <date>");
-            }
-
-            LocalDate targetDate = Deadline.parseDateOnly(dateString);
-
-            taskManager.printTasksByDate(targetDate);
-            return false;
+            return handleDate(input, taskManager);
         }
-
         if (isCommand(input, "find")) {
-            String keyword = extractArgument(input, "find");
-            if (keyword.isEmpty()) {
-                throw new MissingDescriptionException(
-                        DISCARD_PREFIX + "Please give a keyword to search for! Try: find <keyword>");
-            }
-
-            taskManager.printTasksByName(keyword);
-            return false;
+            return handleFind(input, taskManager);
         }
 
         throw new WrongCommandException(DISCARD_PREFIX + "I do not understand the command \"" + input + "\"!");
+    }
+
+    /**
+     * Handles the "list" command: prints every task currently in the list.
+     *
+     * @param taskManager the task list to print.
+     * @return false, since "list" never exits the program.
+     */
+    private static boolean handleList(TaskManager taskManager) {
+        taskManager.printTasks();
+        return false;
+    }
+
+    /**
+     * Handles the "bye" command: prints the farewell message.
+     *
+     * @param ui the UI to print the farewell message through.
+     * @return true, so the caller knows to end the program.
+     */
+    private static boolean handleBye(Ui ui) {
+        ui.showGoodbye();
+        return true;
+    }
+
+    /**
+     * Handles the "mark" command: marks the given task number as completed.
+     *
+     * @param input the raw line of user input, e.g. "mark 2".
+     * @param taskManager the task list to act on.
+     * @return false, since "mark" never exits the program.
+     * @throws AceException if the task number is missing, non-numeric, or out of range.
+     */
+    private static boolean handleMark(String input, TaskManager taskManager) throws AceException {
+        int taskNumber = parseTaskNumber(extractArgument(input, "mark"), "mark", taskManager);
+        taskManager.markTask(taskNumber - 1);
+        return false;
+    }
+
+    /**
+     * Handles the "unmark" command: marks the given task number as not completed.
+     *
+     * @param input the raw line of user input, e.g. "unmark 2".
+     * @param taskManager the task list to act on.
+     * @return false, since "unmark" never exits the program.
+     * @throws AceException if the task number is missing, non-numeric, or out of range.
+     */
+    private static boolean handleUnmark(String input, TaskManager taskManager) throws AceException {
+        int taskNumber = parseTaskNumber(extractArgument(input, "unmark"), "unmark", taskManager);
+        taskManager.unmarkTask(taskNumber - 1);
+        return false;
+    }
+
+    /**
+     * Handles the "todo" command: adds a new to-do with the given description.
+     *
+     * @param input the raw line of user input, e.g. "todo borrow book".
+     * @param taskManager the task list to add to.
+     * @param ui the UI to report the result through.
+     * @return false, since "todo" never exits the program.
+     * @throws MissingDescriptionException if no description is given.
+     */
+    private static boolean handleTodo(String input, TaskManager taskManager, Ui ui)
+            throws MissingDescriptionException {
+        String todoDescription = extractArgument(input, "todo");
+        if (todoDescription.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "A todo needs a description! Try: todo <description>");
+        }
+
+        Task newTodo = new Todo(todoDescription);
+        taskManager.addTask(newTodo);
+        ui.showTaskAdded(newTodo, "To-Do", taskManager.getCurrentNumberOfTasks());
+        return false;
+    }
+
+    /**
+     * Handles the "deadline" command: adds a new deadline with the given
+     * description and due date/time, split on its "/by" marker.
+     *
+     * @param input the raw line of user input, e.g. "deadline return book /by 2/12/2019 1800".
+     * @param taskManager the task list to add to.
+     * @param ui the UI to report the result through.
+     * @return false, since "deadline" never exits the program.
+     * @throws AceException if the description, "/by" marker, or date is missing,
+     *     or the date doesn't match an accepted format.
+     */
+    private static boolean handleDeadline(String input, TaskManager taskManager, Ui ui) throws AceException {
+        String deadlineUsage = "Try: deadline <description> /by <date>";
+        String card = extractArgument(input, "deadline");
+        if (card.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
+        }
+
+        // Bare marker (no required surrounding spaces), so a missing
+        // description or date/time before/after it doesn't hide the
+        // marker itself — see the note on handleEvent below for why.
+        String byMarker = "/by";
+        int byIndex = card.indexOf(byMarker);
+        if (byIndex == -1) {
+            throw new WrongCommandException(DISCARD_PREFIX + "A deadline needs '/by'! " + deadlineUsage);
+        }
+
+        String description = card.substring(0, byIndex).trim();
+        String byWhen = card.substring(byIndex + byMarker.length()).trim();
+
+        if (description.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "A deadline needs a description! " + deadlineUsage);
+        }
+        if (byWhen.isEmpty()) {
+            throw new WrongCommandException(
+                    DISCARD_PREFIX + "Please give a date after '/by'! " + deadlineUsage);
+        }
+
+        Task newDeadline = new Deadline(description, byWhen);
+        taskManager.addTask(newDeadline);
+        ui.showTaskAdded(newDeadline, "Deadline", taskManager.getCurrentNumberOfTasks());
+        return false;
+    }
+
+    /**
+     * Handles the "event" command: adds a new event with the given
+     * description, start time, and end time, split on its "/from" and "/to"
+     * markers.
+     *
+     * @param input the raw line of user input, e.g. "event meeting /from Mon 2pm /to 4pm".
+     * @param taskManager the task list to add to.
+     * @param ui the UI to report the result through.
+     * @return false, since "event" never exits the program.
+     * @throws AceException if the description, markers, start time, or end
+     *     time are missing, or the markers are out of order.
+     */
+    private static boolean handleEvent(String input, TaskManager taskManager, Ui ui) throws AceException {
+        String eventUsage = "Try: event <description> /from <start> /to <end>";
+        String card = extractArgument(input, "event");
+        if (card.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "An event needs a description! " + eventUsage);
+        }
+
+        // Bare markers (no required surrounding spaces): matching
+        // " /from " and " /to " literally meant an empty description,
+        // start time, or end time could make the adjacent marker's
+        // required space disappear (trimmed away at the edges, or
+        // merged into one shared space between two adjacent markers) —
+        // the latter previously caused a crash, since the two markers'
+        // computed positions could overlap. Explicit emptiness checks
+        // below now catch all three cases instead.
+        String fromMarker = "/from";
+        String toMarker = "/to";
+        int fromIndex = card.indexOf(fromMarker);
+        int toIndex = card.indexOf(toMarker);
+        if (fromIndex == -1 || toIndex == -1 || fromIndex + fromMarker.length() > toIndex) {
+            throw new WrongCommandException(
+                    DISCARD_PREFIX + "An event needs both '/from' and '/to', with '/from' first! "
+                            + eventUsage);
+        }
+
+        String description = card.substring(0, fromIndex).trim();
+        String startTime = card.substring(fromIndex + fromMarker.length(), toIndex).trim();
+        String endTime = card.substring(toIndex + toMarker.length()).trim();
+
+        if (description.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "An event needs a description! " + eventUsage);
+        }
+        if (startTime.isEmpty() || endTime.isEmpty()) {
+            throw new WrongCommandException(
+                    DISCARD_PREFIX + "Please give both a start time and an end time! " + eventUsage);
+        }
+
+        Task newEvent = new Event(description, startTime, endTime);
+        taskManager.addTask(newEvent);
+        ui.showTaskAdded(newEvent, "Event", taskManager.getCurrentNumberOfTasks());
+        return false;
+    }
+
+    /**
+     * Handles the "delete" command: removes the given task number from the list.
+     *
+     * @param input the raw line of user input, e.g. "delete 2".
+     * @param taskManager the task list to act on.
+     * @param ui the UI to report the result through.
+     * @return false, since "delete" never exits the program.
+     * @throws AceException if the task number is missing, non-numeric, or out of range.
+     */
+    private static boolean handleDelete(String input, TaskManager taskManager, Ui ui) throws AceException {
+        String card = extractArgument(input, "delete");
+        if (card.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "Please give a task number! Try: delete <task number>");
+        }
+
+        int taskNumber = parseTaskNumber(card, "delete", taskManager);
+        Task deletedTask = taskManager.getTask(taskNumber - 1);
+        taskManager.deleteTask(taskNumber - 1);
+        ui.showTaskDeleted(deletedTask, taskManager.getCurrentNumberOfTasks());
+        return false;
+    }
+
+    /**
+     * Handles the "date" command: lists every deadline due on the given date.
+     *
+     * @param input the raw line of user input, e.g. "date 2/12/2019".
+     * @param taskManager the task list to search.
+     * @return false, since "date" never exits the program.
+     * @throws AceException if the date is missing or doesn't match the accepted format.
+     */
+    private static boolean handleDate(String input, TaskManager taskManager) throws AceException {
+        String dateString = extractArgument(input, "date");
+        if (dateString.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "Please give a date! Try: date <date>");
+        }
+
+        LocalDate targetDate = Deadline.parseDateOnly(dateString);
+
+        taskManager.printTasksByDate(targetDate);
+        return false;
+    }
+
+    /**
+     * Handles the "find" command: lists every task whose description
+     * contains the given keyword.
+     *
+     * @param input the raw line of user input, e.g. "find book".
+     * @param taskManager the task list to search.
+     * @return false, since "find" never exits the program.
+     * @throws MissingDescriptionException if no keyword is given.
+     */
+    private static boolean handleFind(String input, TaskManager taskManager) throws MissingDescriptionException {
+        String keyword = extractArgument(input, "find");
+        if (keyword.isEmpty()) {
+            throw new MissingDescriptionException(
+                    DISCARD_PREFIX + "Please give a keyword to search for! Try: find <keyword>");
+        }
+
+        taskManager.printTasksByName(keyword);
+        return false;
     }
 
     /**

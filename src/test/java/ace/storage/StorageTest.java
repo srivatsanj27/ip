@@ -2,6 +2,7 @@ package ace.storage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ace.task.Deadline;
+import ace.task.Event;
 import ace.task.Task;
 import ace.task.TaskManager;
 import ace.task.Todo;
@@ -59,6 +61,49 @@ public class StorageTest {
         assertEquals(2, loaded.getCurrentNumberOfTasks());
         assertEquals(original.getTask(0).toString(), loaded.getTask(0).toString());
         assertEquals(original.getTask(1).toString(), loaded.getTask(1).toString());
+    }
+
+    @Test
+    public void saveThenLoad_eventTask_roundTripsCorrectly() throws Exception {
+        TaskManager original = new TaskManager();
+        original.addTask(new Event("project meeting", "Mon 2pm", "4pm"));
+
+        Storage.save(original);
+
+        TaskManager loaded = new TaskManager();
+        Storage.load(loaded);
+
+        assertEquals(1, loaded.getCurrentNumberOfTasks());
+        assertEquals(original.getTask(0).toString(), loaded.getTask(0).toString());
+    }
+
+    @Test
+    public void saveThenLoad_completedEvent_preservesMarkedState() throws Exception {
+        TaskManager original = new TaskManager();
+        Event event = new Event("project meeting", "Mon 2pm", "4pm");
+        event.completeTask();
+        original.addTask(event);
+
+        Storage.save(original);
+
+        TaskManager loaded = new TaskManager();
+        Storage.load(loaded);
+
+        assertTrue(loaded.getTask(0).isCompleted());
+    }
+
+    @Test
+    public void load_unrecognizedTypeCharacter_skipsLineWithoutCrashing() throws IOException {
+        Files.createDirectories(SAVE_FILE.getParent());
+        Files.writeString(SAVE_FILE,
+                "[T][ ] good task\n"
+                + "[Z][ ] unknown type character\n");
+
+        TaskManager taskManager = new TaskManager();
+        assertDoesNotThrow(() -> Storage.load(taskManager));
+
+        assertEquals(1, taskManager.getCurrentNumberOfTasks());
+        assertEquals("[T][ ] good task", taskManager.getTask(0).toString());
     }
 
     @Test
