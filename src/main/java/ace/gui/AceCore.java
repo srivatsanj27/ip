@@ -89,6 +89,6 @@ public class AceCore {
         } finally {
             System.setOut(originalOut);
         }
-        return buffer.toString().strip();
+        return buffer.toString().stripTrailing();
     }
 }

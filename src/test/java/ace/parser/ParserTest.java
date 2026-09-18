@@ -32,14 +32,14 @@ import ace.ui.Ui;
 public class ParserTest {
     private static final Path SAVE_FILE = Paths.get("data", "Ace.txt");
     private byte[] backup;
-    private boolean fileExisted;
+    private boolean wasFileExisting;
     private TaskManager taskManager;
     private Ui ui;
 
     @BeforeEach
     public void setUp() throws IOException {
-        fileExisted = Files.exists(SAVE_FILE);
-        if (fileExisted) {
+        wasFileExisting = Files.exists(SAVE_FILE);
+        if (wasFileExisting) {
             backup = Files.readAllBytes(SAVE_FILE);
         }
         taskManager = new TaskManager();
@@ -48,7 +48,7 @@ public class ParserTest {
 
     @AfterEach
     public void restoreRealSaveFile() throws IOException {
-        if (fileExisted) {
+        if (wasFileExisting) {
             Files.write(SAVE_FILE, backup);
         } else {
             Files.deleteIfExists(SAVE_FILE);

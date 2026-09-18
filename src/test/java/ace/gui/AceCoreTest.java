@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 public class AceCoreTest {
     private static final Path SAVE_FILE = Paths.get("data", "Ace.txt");
     private byte[] backup;
-    private boolean fileExisted;
+    private boolean wasFileExisting;
 
     @BeforeEach
     public void backUpRealSaveFile() throws IOException {
-        fileExisted = Files.exists(SAVE_FILE);
-        if (fileExisted) {
+        wasFileExisting = Files.exists(SAVE_FILE);
+        if (wasFileExisting) {
             backup = Files.readAllBytes(SAVE_FILE);
         }
         Files.deleteIfExists(SAVE_FILE);
@@ -36,7 +36,7 @@ public class AceCoreTest {
 
     @AfterEach
     public void restoreRealSaveFile() throws IOException {
-        if (fileExisted) {
+        if (wasFileExisting) {
             Files.write(SAVE_FILE, backup);
         } else {
             Files.deleteIfExists(SAVE_FILE);
